@@ -1,0 +1,435 @@
+<!--
+🟧🟧⬛⬛🟧⬛⬛🟧🟧
+🟧⬛🟥🟥⬛🟥🟥⬛🟧
+⬛🟥🟥🟥🟥🟥🟥🟥⬛
+⬛🟥🟥🟥🟥🟥🟥🟥⬛
+⬛🟥🟥🟥🟥🟥🟥🟥⬛
+🟧⬛🟥🟥🟥🟥🟥⬛🟧
+🟧🟧⬛🟥🟥🟥⬛🟧🟧
+🟧🟧🟧⬛🟥⬛🟧🟧🟧
+🟧🟧🟧🟧⬛🟧🟧🟧🟧
+
+⬛⬛⬛🟥🟥🟥🟥⬛⬛⬛
+⬛⬛🟥🟧🟧🟧🟧🟥⬛⬛
+⬛🟥🟧🟨🟨🟨🟨🟧🟥⬛
+🟥🟧🟨🟨⬜⬜🟨🟨🟧🟥
+🟥🟧🟨⬜⬜⬜⬜🟨🟧🟥
+🟥🟧🟨⬜⬜⬜⬜🟨🟧🟥
+🟥🟧🟨🟨⬜⬜🟨🟨🟧🟥
+⬛🟥🟧🟨🟨🟨🟨🟧🟥⬛
+⬛⬛🟥🟧🟧🟧🟧🟥⬛⬛
+⬛⬛⬛🟥🟥🟥🟥⬛⬛⬛
+
+🟥🟧🟨🟩🟦🟪🟫⬛⬜
+⏹️❎✳️✴️❇️🅿️🆙
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>emojipaint</title>
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .component-metrics {
+      position: absolute;
+      /* TODO: same style as canvas element */
+    }
+
+    .component-canvas {
+      cursor: crosshair;
+      user-select: none;
+      background: silver;
+    }
+
+    .component-palette {
+      background: fuchsia;
+    }
+
+    .component-palette_item {
+      padding: 2px;
+    }
+
+    .component-paint {
+      background: green;
+    }
+
+  </style>
+</head>
+<body>
+
+<script>
+
+const DEFAULT_PALETTE = [ "🟥", "🟧", "🟨", "🟩", "🟦", "🟪", "🟫", "⬛", "⬜" ];
+const DEFAULT_BLANK = DEFAULT_PALETTE[7];
+
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  clone() {
+    return new Point(this.x, this.y);
+  }
+}
+
+class Rectangle extends Point {
+  constructor(x, y, width, height) {
+    super(x, y);
+    this.width = width;
+    this.height = height;
+  }
+
+  clone() {
+    return new Rectangle(this.x, this.y, this.width, this.height);
+  }
+
+  static fromClientRect(value) {
+    return new Rectangle(value.left, value.top, value.width, value.height);
+  }
+}
+
+class Data {
+  setup(width = 10, height = 10, blank = DEFAULT_BLANK, separator = "\n") {
+    this.width = width;
+    this.height = height;
+    this.blank = blank;
+    this.separator = separator;
+    this.matrix = new Array(this.height)
+      .fill()
+      .map(() => new Array(this.width).fill(blank));
+  }
+
+  clear() {
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        this.matrix[y][x] = this.blank;
+      }
+    }
+  }
+
+  set(x, y, value) {
+    if (x >= 0 && x < this.width && y >= 0 || y < this.height) {
+      this.matrix[y][x] = value;
+    }
+    else throw new RangeError('out of range!');
+  }
+
+  toString() {
+    return this.matrix.reduce(
+      (result, line) => result + line.join('') + this.separator,
+      ''
+    );
+  }
+}
+
+class Metrics {
+  constructor(data = DEFAULT_BLANK) {
+    this.rectangle = new Rectangle(0, 0, 0, 0);
+    this.element = document.createElement('div');
+    this.element.classList.add("component-metrics");
+    this.element.innerText = data;
+  }
+
+  measure() {
+    document.body.appendChild(this.element);
+    this.rectangle = new Rectangle(0, 0, this.element.offsetWidth, this.element.offsetHeight);
+    document.body.removeChild(this.element);
+
+    return this.rectangle;
+  }
+}
+
+class Palette {
+  constructor(callback = (value) => void(0), palette = DEFAULT_PALETTE) {
+    this.callback = callback;
+    this.palette = palette;
+    this.onClick = this.onClick.bind(this);
+    this.selected = palette[0];
+
+    this.element = document.createElement("div");
+    this.element.classList.add("component-palette");
+    this.element.addEventListener('click', this.onClick);
+
+    this.palette.forEach((entry, index) => {
+      const item = document.createElement('button');
+      item.classList.add("component-palette_item");
+      item.dataset.index = index;
+      item.innerText = entry;
+      this.element.appendChild(item);
+    });
+
+    this.callback(this.selected);
+  }
+
+  onClick(event) {
+    this.selected = this.palette[event.target.dataset.index];
+    this.callback(this.selected);
+  }
+}
+
+class MouseGrid {
+  setup(gridRect, cellRect) {
+    this.gridRect = gridRect;
+    this.cellRect = cellRect;
+  }
+
+  isValidCoordinate(x, y) {
+    return (x >= 0 && x <= this.gridRect.width
+      && y >= 0 && y <= this.gridRect.height);
+  }
+
+  getPointFromCoordinate(x, y) {
+    if (!this.isValidCoordinate(x, y)) {
+      return null;
+    }
+
+    return new Point(
+      Math.floor(x / this.cellRect.width),
+      Math.floor(y / this.cellRect.height)
+    );
+  }
+
+  getPointFromEvent(event) {
+    return this.getPointFromCoordinate(
+      event.clientX - this.gridRect.x,
+      event.clientY - this.gridRect.y
+    );
+  }
+}
+
+const DrawFunctions = {
+  // line(pointA, pointB) {
+  //   let result = [];
+  //
+  //   if (!pointA || !pointB) {
+  //       return result
+  //   }
+  //
+  //   const length = Math.round(Math.sqrt(
+  //     (pointA.x - pointB.x) * (pointA.x - pointB.x)
+  //     + (pointA.y - pointB.y) * (pointA.y - pointB.y)
+  //   ))
+  //
+  //   for (let i = 0; i < length; i++) {
+  //     result.push(new Point(
+  //       Math.round(pointA.x + (pointB.x - pointA.x) * i / length),
+  //       Math.round(pointA.y + (pointB.y - pointA.y) * i / length)
+  //     ));
+  //   }
+  //
+  //   return result;
+  // }
+
+  // DDA Line Algorithm
+  lineSimple(pointA, pointB) {
+    const dx = pointB.x - pointA.x
+    const dy = pointB.y - pointA.y
+    const steps = Math.max(Math.abs(dx), Math.abs(dy))
+    const xIncrement = dx / steps
+    const yIncrement = dy / steps
+    let result = [];
+    let x = pointA.x
+    let y = pointA.y
+
+    result.push(new Point(Math.round(x), Math.round(y)));
+
+    for (let i = 0; i < steps; i++) {
+      x += xIncrement
+      y += yIncrement
+
+      result.push(new Point(Math.round(x), Math.round(y)));
+    }
+
+    return result;
+  },
+
+  // Bresenham's Line Algorithm
+  line(pointA, pointB) {
+    let result = [];
+    let x0 = pointA.x
+    let y0 = pointA.y
+    let x1 = pointB.x
+    let y1 = pointB.y
+    const dx = Math.abs(x1 - x0)
+    const dy = Math.abs(y1 - y0)
+    const sx = (x0 < x1) ? 1 : -1
+    const sy = (y0 < y1) ? 1 : -1
+    let err = dx - dy
+
+    while (true) {
+      // ctx.fillRect(x0, y0, 1, 1) // Draw the current pixel
+      result.push(new Point(x0, y0));
+
+      if (x0 === x1 && y0 === y1) break
+
+      const e2 = 2 * err
+      if (e2 > -dy) {
+        err -= dy
+        x0 += sx
+      }
+      if (e2 < dx) {
+        err += dx
+        y0 += sy
+      }
+    }
+
+    return result;
+  }
+}
+
+class Tool {
+  constructor(canvas) {
+    this.value = DEFAULT_BLANK;
+    this.canvas = canvas;
+    this.mouseDown = false;
+    this.point = null;
+    this.prevPoint = null;
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+  }
+
+  activate() {
+    const e = this.canvas.element;
+    e.addEventListener('mousedown', this.onMouseDown);
+    e.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('mouseup', this.onMouseUp);
+  }
+
+  deactivate() {
+    const e = this.canvas.element;
+    e.removeEventListener('mousedown', this.onMouseDown);
+    e.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('mouseup', this.onMouseUp);
+  }
+
+  apply(event) {
+    this.prevPoint = this.point;
+    this.point = this.canvas.mouseGrid.getPointFromEvent(event);
+
+    return !!this.point;
+    // Implement in child class
+  }
+
+  onMouseDown(event) {
+    this.mouseDown = true;
+    this.apply(event);
+  }
+
+  onMouseMove(event) {
+    if (this.mouseDown) {
+      this.apply(event);
+    }
+  }
+
+  onMouseUp(event) {
+    this.apply(event);
+    this.mouseDown = false;
+    this.point = null;
+    this.prevPoint = null;
+  }
+}
+
+class DrawTool extends Tool {
+  apply(event) {
+    if (super.apply(event)) {
+      const points = DrawFunctions.line(
+        this.prevPoint ?? this.point,
+        this.point
+      );
+      this.canvas.draw.apply(
+        this.canvas,
+        [ this.value, ...points ]
+      );
+    }
+  }
+}
+
+class Canvas {
+  constructor() {
+    this.data = new Data();
+    this.metrics = new Metrics();
+
+    this.element = document.createElement("div");
+    this.element.classList.add("component-canvas");
+  }
+
+  setup(width, height) {
+    this.width = width;
+    this.height = height;
+
+    this.data.setup(this.width, this.height);
+    this.metrics.measure();
+
+    this.element.style.width = `${this.width * this.metrics.rectangle.width}px`;
+    this.element.style.height = `${this.height * this.metrics.rectangle.height}px`;
+    this.element.innerText = this.data.toString();
+
+    this.rectangle = Rectangle.fromClientRect(this.element.getBoundingClientRect());
+
+    this.mouseGrid = new MouseGrid();
+    this.mouseGrid.setup(this.rectangle, this.metrics.rectangle);
+  }
+
+  draw(value, ...points) {
+    points.forEach((point) => this.data.set(point.x, point.y, value));
+    this.element.innerText = this.data.toString();
+  }
+}
+
+function copyToClipboard(text) {
+  const previousFocus = window.activeElement;
+  const textarea = document.createElement("textarea");
+  textarea.className = "copy-button-helper";
+  textarea.value = text;
+
+  document.body.appendChild(textarea);
+
+  textarea.select();
+  // For mobile devices
+  textarea.setSelectionRange(0, textarea.value.length);
+  document.execCommand("copy");
+  textarea.remove();
+
+  previousFocus && previousFocus.focus();
+}
+
+class Paint {
+  constructor() {
+    this.onPaletteChange = this.onPaletteChange.bind(this);
+
+    this.element = document.createElement("div");
+    this.element.classList.add("component-paint");
+    document.body.append(this.element);
+
+    this.canvas = new Canvas();
+    this.element.appendChild(this.canvas.element);
+    this.canvas.setup(30, 30);
+
+    this.tool = new DrawTool(this.canvas);
+    this.tool.activate();
+
+    this.palette = new Palette(this.onPaletteChange);
+    this.element.appendChild(this.palette.element);
+  }
+
+  onPaletteChange(value) {
+    this.tool.value = value;
+  }
+}
+
+console.clear();
+const paint = new Paint();
+
+</script>
+
+</body>
+</html>
