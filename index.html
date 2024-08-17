@@ -206,28 +206,6 @@ class MouseGrid {
 }
 
 const DrawFunctions = {
-  // line(pointA, pointB) {
-  //   let result = [];
-  //
-  //   if (!pointA || !pointB) {
-  //       return result
-  //   }
-  //
-  //   const length = Math.round(Math.sqrt(
-  //     (pointA.x - pointB.x) * (pointA.x - pointB.x)
-  //     + (pointA.y - pointB.y) * (pointA.y - pointB.y)
-  //   ))
-  //
-  //   for (let i = 0; i < length; i++) {
-  //     result.push(new Point(
-  //       Math.round(pointA.x + (pointB.x - pointA.x) * i / length),
-  //       Math.round(pointA.y + (pointB.y - pointA.y) * i / length)
-  //     ));
-  //   }
-  //
-  //   return result;
-  // }
-
   // DDA Line Algorithm
   lineSimple(pointA, pointB) {
     const dx = pointB.x - pointA.x
@@ -345,6 +323,7 @@ class DrawTool extends Tool {
         this.prevPoint ?? this.point,
         this.point
       );
+
       this.canvas.draw.apply(
         this.canvas,
         [ this.value, ...points ]
