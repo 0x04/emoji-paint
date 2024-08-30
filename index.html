@@ -49,6 +49,7 @@
         }
 
         .component-palette {
+            display: flex;
             background: fuchsia;
         }
 
@@ -68,8 +69,11 @@
 
 <script>
 
-  const DEFAULT_PALETTE = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫', '⬛', '⬜']
-  const DEFAULT_BLANK = DEFAULT_PALETTE[7]
+  const DEFAULT_BLANK = '⬜'
+  const DEFAULT_PALETTES = {
+    'Squares': '⬛⬜🟥🟦🟧🟨🟩🟪🟫',
+    'Circles': '⚫⚪🔴🔵🟠🟡🟢🟣🟤',
+  }
 
   class Point {
     constructor(x, y) {
@@ -131,6 +135,34 @@
     }
   }
 
+  class DataStorage {
+    data = {}
+
+    constructor() {
+      this.read()
+    }
+
+    static get KEY() {
+      return 'emojiPaint'
+    }
+
+    read() {
+      this.data = JSON.parse(localStorage.getItem(DataStorage.KEY)) ?? {}
+    }
+
+    write() {
+      localStorage.setItem(DataStorage.KEY, JSON.stringify(this.data))
+    }
+
+    getItem(key) {
+      return this.data[key]
+    }
+
+    setItem(key, value) {
+      this.data[key] = value
+    }
+  }
+
   class Metrics {
     constructor(data = DEFAULT_BLANK) {
       this.rectangle = new Rectangle(0, 0, 0, 0)
@@ -149,22 +181,46 @@
   }
 
   class Palette {
-    constructor(callback = (value) => void (0), palette = DEFAULT_PALETTE) {
-      this.callback = callback
-      this.palette = palette
-      this.onClick = this.onClick.bind(this)
-      this.selected = palette[0]
+    elements = {
+      container: null,
+      items: null
+    }
 
-      this.element = document.createElement('div')
-      this.element.classList.add('component-palette')
-      this.element.addEventListener('click', this.onClick)
+    constructor(
+      callback = () => void (0),
+      storage = null,
+    ) {
+      this.callback = callback
+      this.storage = storage
+      this.onClick = this.onClick.bind(this)
+      this.onDropdownChange = this.onDropdownChange.bind(this)
+
+      this.elements.container = document.createElement('div')
+      this.elements.container.classList.add('component-palette')
+
+      this.elements.items = document.createElement('div')
+      this.elements.items.classList.add('component-palette_items')
+      this.elements.items.addEventListener('click', this.onClick)
+      this.elements.container.append(this.elements.items)
+
+      this.dropdown = new PaletteDropdown(this.onDropdownChange, this.storage)
+      this.elements.container.prepend(this.dropdown.element)
+      this.dropdown.setup()
+    }
+
+    setup() {
+      const {items} = this.elements
+
+      while (items.childElementCount) {
+        items.removeChild(items.lastChild)
+      }
 
       this.palette.forEach((entry, index) => {
         const item = document.createElement('button')
         item.classList.add('component-palette_item')
         item.dataset.index = index.toString()
         item.innerText = entry
-        this.element.appendChild(item)
+        items.appendChild(item)
       })
 
       this.callback(this.selected)
@@ -173,6 +229,57 @@
     onClick(event) {
       this.selected = this.palette[event.target.dataset.index]
       this.callback(this.selected)
+    }
+
+    onDropdownChange(event) {
+      this.palette = [...this.dropdown.selected]
+      this.selected = this.palette[0]
+      this.setup()
+    }
+  }
+
+  class PaletteDropdown {
+    constructor(
+      changeHandler = () => void (0),
+      storage = null
+    ) {
+      this.onChange = changeHandler.bind(this)
+      this.storage = storage
+
+      this.element = document.createElement('select')
+      this.element.classList.add('component-palette_dropdown')
+      this.element.addEventListener('change', this.onChange)
+    }
+
+    static get STORAGE_KEY() {
+      return 'palettes'
+    }
+
+    get selected() {
+      return [...this.element.selectedOptions.item(0).value]
+    }
+
+    setup() {
+      while (this.element.childElementCount) {
+        this.element.removeChild(this.element.firstChild)
+      }
+
+      const entries = this.storage.getItem(PaletteDropdown.STORAGE_KEY) ?? DEFAULT_PALETTES
+
+      for (const [key, value] of Object.entries(entries)) {
+        const option = document.createElement('option')
+        option.value = value.toString()
+        option.innerText = key
+
+        this.element.appendChild(option)
+      }
+
+      this.dispatchChange()
+    }
+
+    dispatchChange() {
+      const event = new Event('change', {bubbles: true, cancelable: true})
+      this.element.dispatchEvent(event)
     }
   }
 
@@ -310,10 +417,12 @@
     }
 
     onMouseUp(event) {
-      this.apply(event)
-      this.mouseDown = false
-      this.point = null
-      this.prevPoint = null
+      if (this.mouseDown) {
+        this.apply(event)
+        this.mouseDown = false
+        this.point = null
+        this.prevPoint = null
+      }
     }
   }
 
@@ -395,6 +504,8 @@
         document.body.append(this.element)
       }
 
+      this.storage = new DataStorage()
+
       this.canvas = new Canvas()
       this.element.appendChild(this.canvas.element)
       this.canvas.setup(width, height)
@@ -402,8 +513,8 @@
       this.tool = new DrawTool(this.canvas)
       this.tool.activate()
 
-      this.palette = new Palette(this.onPaletteChange)
-      this.element.appendChild(this.palette.element)
+      this.palette = new Palette(this.onPaletteChange, this.storage)
+      this.element.appendChild(this.palette.elements.container)
     }
 
     onPaletteChange(value) {
