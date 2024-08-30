@@ -320,7 +320,7 @@
   class DrawTool extends Tool {
     apply(event) {
       if (super.apply(event)) {
-        const points = DrawFunctions.lineSimple(
+        const points = DrawFunctions.line(
           this.prevPoint ?? this.point,
           this.point
         )
