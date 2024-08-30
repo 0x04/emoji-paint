@@ -64,6 +64,8 @@
 </head>
 <body>
 
+<div id="componentPaint"></div>
+
 <script>
 
   const DEFAULT_PALETTE = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫', '⬛', '⬜']
@@ -103,7 +105,7 @@
       this.blank = blank
       this.separator = separator
       this.matrix = new Array(this.height)
-      .fill()
+      .fill(undefined)
       .map(() => new Array(this.width).fill(blank))
     }
 
@@ -160,7 +162,7 @@
       this.palette.forEach((entry, index) => {
         const item = document.createElement('button')
         item.classList.add('component-palette_item')
-        item.dataset.index = index
+        item.dataset.index = index.toString()
         item.innerText = entry
         this.element.appendChild(item)
       })
@@ -381,16 +383,21 @@
   }
 
   class Paint {
-    constructor() {
+    constructor(element = document.createElement('div')) {
       this.onPaletteChange = this.onPaletteChange.bind(this)
 
-      this.element = document.createElement('div')
+      this.element = element
       this.element.classList.add('component-paint')
-      document.body.append(this.element)
+    }
+
+    setup(width = 30, height = 30) {
+      if (!this.element.parentElement) {
+        document.body.append(this.element)
+      }
 
       this.canvas = new Canvas()
       this.element.appendChild(this.canvas.element)
-      this.canvas.setup(30, 30)
+      this.canvas.setup(width, height)
 
       this.tool = new DrawTool(this.canvas)
       this.tool.activate()
@@ -405,7 +412,8 @@
   }
 
   console.clear()
-  const paint = new Paint()
+  const paint = new Paint(document.getElementById('componentPaint'))
+  paint.setup()
 
 </script>
 
