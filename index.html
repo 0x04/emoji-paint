@@ -254,6 +254,44 @@
     }
   }
 
+  class Toolbar {
+    items = {}
+
+    constructor(className) {
+      this.element = document.createElement('div')
+      this.element.classList.add('component-toolbar', className)
+    }
+
+    attachItem(identifier, element) {
+      this.items[identifier] = element
+      this.element.append(element)
+    }
+  }
+
+  class ToolbarTop extends Toolbar {
+    constructor(data) {
+      super('component-toolbar_top')
+      this.data = data
+      this.setup()
+    }
+
+    setup() {
+      this.setupBtnCopy()
+    }
+
+    setupBtnCopy() {
+      const btnCopy = document.createElement('button')
+
+      btnCopy.title = 'Copy to clipboard'
+      btnCopy.innerText = 'Copy'
+      btnCopy.addEventListener('click', () => {
+        copyToClipboard(this.data.toString())
+      })
+
+      this.element.appendChild(btnCopy)
+    }
+  }
+
   class Palette {
     elements = {
       container: null,
@@ -504,6 +542,8 @@
   }
 
   class Paint {
+    toolbars = {top: null}
+
     constructor(element = document.createElement('div')) {
       this.onPaletteChange = this.onPaletteChange.bind(this)
 
@@ -519,6 +559,9 @@
       this.storage = new DataStorage()
 
       this.canvas = new Canvas()
+
+      this.toolbars.top = new ToolbarTop(this.canvas.data)
+      this.element.appendChild(this.toolbars.top.element)
       this.element.appendChild(this.canvas.element)
       this.canvas.setup(width, height)
 
