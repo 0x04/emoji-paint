@@ -417,23 +417,10 @@
       )
     }
 
-    getScrollOffsetFromEvent(event) {
-      let {parent, x, y} = {parent: event.currentTarget, x: event.clientX, y: event.clientY}
-
-      do {
-        x += parent.scrollLeft
-        y += parent.scrollTop
-      } while ((parent = parent.parentElement))
-
-      return [x, y]
-    }
-
     getPointFromEvent(event) {
-      const [x, y] = this.getScrollOffsetFromEvent(event)
-
       return this.getPointFromCoordinate(
-        x - this.gridRect.x,
-        y - this.gridRect.y
+        event.offsetX - this.gridRect.x,
+        event.offsetY - this.gridRect.y
       )
     }
   }
@@ -522,15 +509,16 @@
       this.width = width
       this.height = height
 
-      this.data.setup(this.width, this.height)
-      this.metrics.measure()
+      const {element, data, metrics} = this
 
-      this.element.style.width = `${this.width * this.metrics.rectangle.width}px`
-      this.element.style.height = `${this.height * this.metrics.rectangle.height}px`
-      this.element.innerText = this.data.toString()
+      data.setup(this.width, this.height)
+      metrics.measure()
 
-      this.rectangle = Rectangle.fromClientRect(this.element.getBoundingClientRect())
+      element.style.width = `${this.width * metrics.rectangle.width}px`
+      element.style.height = `${this.height * metrics.rectangle.height}px`
+      element.innerText = data.toString()
 
+      this.rectangle = new Rectangle(0, 0, element.clientWidth, element.clientHeight)
       this.mouseGrid = new MouseGrid()
       this.mouseGrid.setup(this.rectangle, this.metrics.rectangle)
     }
