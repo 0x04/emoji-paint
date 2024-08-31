@@ -379,10 +379,23 @@
       )
     }
 
+    getScrollOffsetFromEvent(event) {
+      let {parent, x, y} = {parent: event.currentTarget, x: event.clientX, y: event.clientY}
+
+      do {
+        x += parent.scrollLeft
+        y += parent.scrollTop
+      } while ((parent = parent.parentElement))
+
+      return [x, y]
+    }
+
     getPointFromEvent(event) {
+      const [x, y] = this.getScrollOffsetFromEvent(event)
+
       return this.getPointFromCoordinate(
-        event.clientX - this.gridRect.x,
-        event.clientY - this.gridRect.y
+        x - this.gridRect.x,
+        y - this.gridRect.y
       )
     }
   }
