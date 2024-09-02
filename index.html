@@ -446,13 +446,17 @@
         items.removeChild(items.lastChild)
       }
 
-      this.palette.forEach((entry, index) => {
+      const itemsNew = this.palette.map((entry, index) => {
         const item = document.createElement('button')
+
         item.classList.add('component-palette_item')
         item.dataset.index = index.toString()
         item.innerText = entry
-        items.appendChild(item)
+
+        return item
       })
+
+      items.append(...itemsNew)
 
       this.callback(this.selected)
     }
@@ -496,14 +500,17 @@
       }
 
       const entries = this.storage.getItem(PaletteDropdown.STORAGE_KEY) ?? DEFAULT_PALETTES
-
-      for (const [key, value] of Object.entries(entries)) {
+      const options = Object.entries(entries).map((entry) => {
+        const [key, value] = entry;
         const option = document.createElement('option')
+
         option.value = value.toString()
         option.innerText = key
 
-        this.element.appendChild(option)
-      }
+        return option
+      })
+
+      this.element.append(...options);
 
       this.dispatchChange()
     }
