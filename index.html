@@ -288,6 +288,8 @@
     setup() {
       this.setupNew()
       this.attachSeparator()
+      this.setupBtnClear()
+      this.attachSeparator()
       this.setupBtnCopy()
     }
 
@@ -319,6 +321,18 @@
       containerNew.append(label, inputWidth, inputHeight, btnNew)
 
       this.attachItem('new', containerNew)
+    }
+
+    setupBtnClear() {
+      const btnClear = document.createElement('button')
+
+      btnClear.title = 'Clear Canvas'
+      btnClear.innerText = 'Clear'
+      btnClear.addEventListener('click', () => {
+        this.paint.canvas.clear()
+      })
+
+      this.attachItem('btnCopy', btnClear)
     }
 
     setupBtnCopy() {
@@ -574,6 +588,13 @@
     draw(value, ...points) {
       points.forEach((point) => this.data.set(point.x, point.y, value))
       this.element.innerText = this.data.toString()
+    }
+
+    clear() {
+      if (confirm('Are you sure?')) {
+          this.data.clear()
+          this.element.innerText = this.data.toString()
+      }
     }
   }
 
