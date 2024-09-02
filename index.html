@@ -488,8 +488,14 @@
     }
 
     apply(event) {
+      const point = this.canvas.mouseGrid.getPointFromEvent(event)
+
+      if (!point || point.x > this.canvas.width - 1 || point.y > this.canvas.height - 1) {
+        return false
+      }
+
       this.prevPoint = this.point
-      this.point = this.canvas.mouseGrid.getPointFromEvent(event)
+      this.point = point
 
       return !!this.point
       // Implement in child class
