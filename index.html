@@ -293,9 +293,15 @@
 
     setupNew() {
       const containerNew = document.createElement('div')
+      const label = document.createElement('span')
       const inputWidth = document.createElement('input')
       const inputHeight = document.createElement('input')
       const btnNew = document.createElement('button')
+
+      containerNew.classList.add('component-toolbar_top-new')
+
+      label.classList.add('component-toolbar_label')
+      label.innerText = 'Size'
 
       inputWidth.type = inputHeight.type = 'number'
       inputWidth.value = this.paint.width
@@ -310,7 +316,7 @@
         }
       )
 
-      containerNew.append(inputWidth, inputHeight, btnNew)
+      containerNew.append(label, inputWidth, inputHeight, btnNew)
 
       this.attachItem('new', containerNew)
     }
