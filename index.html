@@ -30,40 +30,103 @@
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>emojipaint</title>
+    <title>EmojiPaint</title>
     <style>
 
-        * {
+        /* region Reset */
+        /* @see https://www.joshwcomeau.com/css/custom-css-reset */
+
+        *, *::before, *::after {
             box-sizing: border-box;
         }
+
+        input, button, textarea, select {
+            font: inherit;
+            color: inherit;
+        }
+
+        /* endregion */
+
+        /* region Standard HTML tags */
+
+        body {
+            margin: 0;
+            padding: 1rem;
+            color: #333;
+            font-family: "Consolas", monospace;
+        }
+
+        /* endregion */
+
+        /* region EmojiPaint */
 
         .component-metrics {
             position: absolute;
             /* TODO: same style as canvas element */
         }
 
+        .component-paint {
+            border: 1px outset;
+            border-radius: 4px;
+            background: #CCC;
+        }
+
+        .component-paint_head {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px outset;
+            border-radius: 3px 3px 0 0;
+            background: #AAA;
+        }
+
+        .component-paint_head:first-letter {
+            text-shadow: 0 0 4px #333;
+        }
+
+        .component-paint_body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
         .component-toolbar_top {
             display: flex;
+        }
+
+        .component-toolbar_top hr {
+            flex: 0 1 0;
+            margin-block: 0.25rem;
+            margin-inline: 0.5rem;
+        }
+
+        .component-toolbar_top .component-toolbar_top-new input[type='number'] {
+            width: 6ch;
+            text-align: right;
+        }
+
+        .component-toolbar_label {
+            margin-inline-end: 0.5rem;
         }
 
         .component-canvas {
             cursor: crosshair;
             user-select: none;
-            background: silver;
+            background: #FFF;
+            padding: 0.25rem;
+            border: 1px inset;
+            width: max-content;
         }
 
         .component-palette {
             display: flex;
-            background: fuchsia;
+            gap: 0.5rem;
         }
 
         .component-palette_item {
             padding: 2px;
         }
 
-        .component-paint {
-            background: green;
-        }
+        /* endregion */
 
     </style>
 </head>
@@ -576,8 +639,6 @@
       data.setup(this.width, this.height)
       metrics.measure()
 
-      element.style.width = `${this.width * metrics.rectangle.width}px`
-      element.style.height = `${this.height * metrics.rectangle.height}px`
       element.innerText = data.toString()
 
       this.rectangle = new Rectangle(0, 0, element.clientWidth, element.clientHeight)
@@ -599,36 +660,49 @@
   }
 
   class Paint {
+    elements = {container: null, head: null}
     toolbars = {top: null}
 
     constructor(element = document.createElement('div')) {
       this.onPaletteChange = this.onPaletteChange.bind(this)
 
-      this.element = element
-      this.element.classList.add('component-paint')
+      const {elements} = this
+
+      const head = elements.head = document.createElement('div')
+      head.classList.add('component-paint_head')
+      head.innerText = '🎨 EmojiPaint'
+
+      const body = elements.body = document.createElement('div')
+      body.classList.add('component-paint_body')
+
+      const container = elements.container = element
+      container.classList.add('component-paint')
+      container.append(head, body)
     }
 
     setup(width = 10, height = 10) {
-      if (!this.element.parentElement) {
+      if (!this.elements.container.parentElement) {
         document.body.append(this.element)
       }
 
       this.width = width
       this.height = height
+
       this.storage = new DataStorage()
-
       this.canvas = new Canvas()
-
       this.toolbars.top = new ToolbarTop(this)
-      this.element.appendChild(this.toolbars.top.element)
-      this.element.appendChild(this.canvas.element)
-      this.canvas.setup(width, height)
 
+      this.elements.body.append(
+        this.toolbars.top.element,
+        this.canvas.element
+      )
+
+      this.canvas.setup(width, height)
       this.tool = new DrawTool(this.canvas)
       this.tool.activate()
-
       this.palette = new Palette(this.onPaletteChange, this.storage)
-      this.element.appendChild(this.palette.elements.container)
+
+      this.elements.body.append(this.palette.elements.container)
     }
 
     onPaletteChange(value) {
