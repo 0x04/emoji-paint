@@ -60,55 +60,55 @@
 
         /* region EmojiPaint */
 
-        .component-metrics {
+        .emoji-paint__metrics {
             position: absolute;
             /* TODO: same style as canvas element */
         }
 
-        .component-paint {
+        .emoji-paint__container {
             border: 1px outset;
             border-radius: 4px;
             background: #CCC;
         }
 
-        .component-paint_head {
+        .emoji-paint__head {
             padding: 0.5rem 1rem;
             border-bottom: 1px outset;
             border-radius: 3px 3px 0 0;
             background: #AAA;
         }
 
-        .component-paint_head:first-letter {
+        .emoji-paint__head:first-letter {
             text-shadow: 0 0 4px #333;
         }
 
-        .component-paint_body {
+        .emoji-paint__body {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
             padding: 1rem;
         }
 
-        .component-toolbar_top {
+        .emoji-paint__toolbar-top {
             display: flex;
         }
 
-        .component-toolbar_top hr {
+        .emoji-paint__toolbar-top hr {
             flex: 0 1 0;
             margin-block: 0.25rem;
             margin-inline: 0.5rem;
         }
 
-        .component-toolbar_top .component-toolbar_top-new input[type='number'] {
+        .emoji-paint__toolbar-top-new input[type='number'] {
             width: 6ch;
             text-align: right;
         }
 
-        .component-toolbar_label {
+        .emoji-paint__toolbar-label {
             margin-inline-end: 0.5rem;
         }
 
-        .component-canvas {
+        .emoji-paint__canvas {
             cursor: crosshair;
             user-select: none;
             background: #FFF;
@@ -117,12 +117,12 @@
             width: max-content;
         }
 
-        .component-palette {
+        .emoji-paint__palette {
             display: flex;
             gap: 0.5rem;
         }
 
-        .component-palette_item {
+        .emoji-paint__palette-item {
             padding: 2px;
         }
 
@@ -308,7 +308,7 @@
     constructor(data = DEFAULT_BLANK) {
       this.rectangle = new Rectangle(0, 0, 0, 0)
       this.element = document.createElement('div')
-      this.element.classList.add('component-metrics')
+      this.element.classList.add('emoji-paint__metrics')
       this.element.innerText = data
     }
 
@@ -343,7 +343,7 @@
 
   class ToolbarTop extends Toolbar {
     constructor(paint) {
-      super('component-toolbar_top')
+      super('emoji-paint__toolbar-top')
       this.paint = paint
       this.setup()
     }
@@ -363,9 +363,9 @@
       const inputHeight = document.createElement('input')
       const btnNew = document.createElement('button')
 
-      containerNew.classList.add('component-toolbar_top-new')
+      containerNew.classList.add('emoji-paint__toolbar-top-new')
 
-      label.classList.add('component-toolbar_label')
+      label.classList.add('emoji-paint__toolbar-label')
       label.innerText = 'Size'
 
       inputWidth.type = inputHeight.type = 'number'
@@ -427,10 +427,10 @@
       this.onDropdownChange = this.onDropdownChange.bind(this)
 
       this.elements.container = document.createElement('div')
-      this.elements.container.classList.add('component-palette')
+      this.elements.container.classList.add('emoji-paint__palette')
 
       this.elements.items = document.createElement('div')
-      this.elements.items.classList.add('component-palette_items')
+      this.elements.items.classList.add('emoji-paint__palette-items')
       this.elements.items.addEventListener('click', this.onClick)
       this.elements.container.append(this.elements.items)
 
@@ -449,7 +449,7 @@
       const itemsNew = this.palette.map((entry, index) => {
         const item = document.createElement('button')
 
-        item.classList.add('component-palette_item')
+        item.classList.add('emoji-paint__palette-item')
         item.dataset.index = index.toString()
         item.innerText = entry
 
@@ -482,7 +482,7 @@
       this.storage = storage
 
       this.element = document.createElement('select')
-      this.element.classList.add('component-palette_dropdown')
+      this.element.classList.add('emoji-paint__palette_dropdown')
       this.element.addEventListener('change', this.onChange)
     }
 
@@ -634,7 +634,7 @@
       this.metrics = new Metrics()
 
       this.element = document.createElement('div')
-      this.element.classList.add('component-canvas')
+      this.element.classList.add('emoji-paint__canvas')
     }
 
     setup(width, height) {
@@ -676,14 +676,14 @@
       const {elements} = this
 
       const head = elements.head = document.createElement('div')
-      head.classList.add('component-paint_head')
+      head.classList.add('emoji-paint__head')
       head.innerText = '🎨 EmojiPaint'
 
       const body = elements.body = document.createElement('div')
-      body.classList.add('component-paint_body')
+      body.classList.add('emoji-paint__body')
 
       const container = elements.container = element
-      container.classList.add('component-paint')
+      container.classList.add('emoji-paint__container')
       container.append(head, body)
     }
 
