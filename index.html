@@ -42,6 +42,10 @@
             /* TODO: same style as canvas element */
         }
 
+        .component-toolbar_top {
+            display: flex;
+        }
+
         .component-canvas {
             cursor: crosshair;
             user-select: none;
@@ -266,17 +270,49 @@
       this.items[identifier] = element
       this.element.append(element)
     }
+
+    attachSeparator() {
+      const separator = document.createElement('hr')
+
+      this.element.append(separator)
+    }
   }
 
   class ToolbarTop extends Toolbar {
-    constructor(data) {
+    constructor(paint) {
       super('component-toolbar_top')
-      this.data = data
+      this.paint = paint
       this.setup()
     }
 
     setup() {
+      this.setupNew()
+      this.attachSeparator()
       this.setupBtnCopy()
+    }
+
+    setupNew() {
+      const containerNew = document.createElement('div')
+      const inputWidth = document.createElement('input')
+      const inputHeight = document.createElement('input')
+      const btnNew = document.createElement('button')
+
+      inputWidth.type = inputHeight.type = 'number'
+      inputWidth.value = this.paint.width
+      inputHeight.value = this.paint.height
+
+      btnNew.innerText = 'New'
+      btnNew.addEventListener('click', () => {
+          this.paint.canvas.setup(
+            parseInt(inputWidth.value),
+            parseInt(inputHeight.value)
+          )
+        }
+      )
+
+      containerNew.append(inputWidth, inputHeight, btnNew)
+
+      this.attachItem('new', containerNew)
     }
 
     setupBtnCopy() {
@@ -285,10 +321,10 @@
       btnCopy.title = 'Copy to clipboard'
       btnCopy.innerText = 'Copy'
       btnCopy.addEventListener('click', () => {
-        copyToClipboard(this.data.toString())
+        copyToClipboard(this.paint.canvas.data.toString())
       })
 
-      this.element.appendChild(btnCopy)
+      this.attachItem('btnCopy', btnCopy)
     }
   }
 
@@ -539,16 +575,18 @@
       this.element.classList.add('component-paint')
     }
 
-    setup(width = 30, height = 30) {
+    setup(width = 10, height = 10) {
       if (!this.element.parentElement) {
         document.body.append(this.element)
       }
 
+      this.width = width
+      this.height = height
       this.storage = new DataStorage()
 
       this.canvas = new Canvas()
 
-      this.toolbars.top = new ToolbarTop(this.canvas.data)
+      this.toolbars.top = new ToolbarTop(this)
       this.element.appendChild(this.toolbars.top.element)
       this.element.appendChild(this.canvas.element)
       this.canvas.setup(width, height)
