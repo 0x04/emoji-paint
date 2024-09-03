@@ -522,6 +522,10 @@
       this.dropdown.setup()
     }
 
+    static get STORAGE_KEY() {
+      return 'palettes'
+    }
+
     setup() {
       const {items} = this.elements
 
@@ -529,7 +533,7 @@
         items.removeChild(items.lastChild)
       }
 
-      const itemsNew = this.palette.map((entry, index) => {
+      const itemsNew = this.currentPalette.map((entry, index) => {
         const item = document.createElement('input')
 
         item.classList.add(Palette.ITEM_ID)
@@ -557,7 +561,7 @@
 
       item.checked = true
 
-      this.selected = this.palette[item.dataset.index]
+      this.selected = this.currentPalette[index]
 
       const detail = {index, button, selected: this.selected}
       const eventChange = new CustomEvent('paletteSelectionChange', {detail})
@@ -569,13 +573,25 @@
     }
 
     onDropdownChange() {
-      this.palette = [...this.dropdown.selected]
-      this.selected = this.palette[0]
+      this.currentPalette = this.dropdown.currentPalette;
+      this.selected = this.currentPalette[0]
       this.setup()
     }
 
     onPaletteEditorChange(event) {
-      this.palette = event.detail.palette
+      this.currentPalette = event.detail.palette
+
+      // TODO: Improve! Seems a bit messy.
+      const storagePalettes = this.storage.getItem(Palette.STORAGE_KEY) ?? {}
+
+      this.storage.setItem(
+        Palette.STORAGE_KEY,
+        {
+          ...storagePalettes,
+          [this.dropdown.currentPaletteName]: event.detail.palette.join('')
+        }
+      )
+      this.storage.write()
       this.setup()
     }
   }
@@ -593,12 +609,12 @@
       this.element.addEventListener('change', this.onChange)
     }
 
-    static get STORAGE_KEY() {
-      return 'palettes'
+    get currentPaletteName() {
+      return this.element.selectedOptions.item(0)?.text
     }
 
-    get selected() {
-      return [...this.element.selectedOptions.item(0).value]
+    get currentPalette() {
+      return splitEmoji(this.element.selectedOptions.item(0).value)
     }
 
     setup() {
@@ -606,13 +622,16 @@
         this.element.removeChild(this.element.firstChild)
       }
 
-      const entries = this.storage.getItem(PaletteDropdown.STORAGE_KEY) ?? DEFAULT_PALETTES
+      const entries = {
+        ...DEFAULT_PALETTES,
+        ...this.storage.getItem(Palette.STORAGE_KEY)
+      }
       const options = Object.entries(entries).map((entry) => {
         const [key, value] = entry
         const option = document.createElement('option')
 
+        option.text = key
         option.value = value.toString()
-        option.innerText = key
 
         return option
       })
@@ -713,7 +732,7 @@
       const {items} = this.palette.elements
       const {inputEdit} = this.elements
 
-      inputEdit.value = this.palette.palette.join('')
+      inputEdit.value = this.palette.currentPalette.join('')
       inputEdit.style.setProperty('height', `${items.offsetHeight}px`)
 
       items.replaceWith(inputEdit)
@@ -727,7 +746,7 @@
 
       inputEdit.replaceWith(items)
 
-      const changed = (this.elements.inputEdit.value !== this.palette.palette.join(''))
+      const changed = (this.elements.inputEdit.value !== this.palette.dropdown.currentPalette.join(''))
 
       if (dispatchChange && changed) {
         this.dispatchChange()
