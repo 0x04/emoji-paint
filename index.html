@@ -68,6 +68,7 @@
         .emoji-paint__container {
             --canvas-background: #FFF;
             --selection-color: #FFFFE0;
+            --label-emoji-text-shadow: 1px 1px 0 #0006;
 
             border: 1px outset;
             border-radius: 4px;
@@ -79,10 +80,11 @@
             border-bottom: 1px outset;
             border-radius: 3px 3px 0 0;
             background: #AAA;
+            font-weight: bold;
         }
 
         .emoji-paint__head:first-letter {
-            text-shadow: 0 0 4px #333;
+            text-shadow: var(--label-emoji-text-shadow);
         }
 
         .emoji-paint__body {
@@ -90,6 +92,13 @@
             flex-direction: column;
             gap: 0.5rem;
             padding: 1rem;
+        }
+
+        .emoji-paint__icon-btn {
+            padding: 1px;
+            line-height: 1.1875rem;
+            text-shadow: var(--label-emoji-text-shadow);
+            vertical-align: top;
         }
 
         .emoji-paint__toolbar-top {
@@ -447,7 +456,12 @@
       inputWidth.value = this.paint.width
       inputHeight.value = this.paint.height
 
-      btnNew.innerText = 'New'
+      btnNew.classList.add(
+        'emoji-paint__toolbar-top-btn-new',
+        'emoji-paint__icon-btn'
+      )
+      btnNew.title = 'New Canvas'
+      btnNew.innerText = '💥️'
       btnNew.addEventListener('click', () => {
           this.paint.canvas.setup(
             parseInt(inputWidth.value),
@@ -464,8 +478,12 @@
     setupBtnClear() {
       const btnClear = document.createElement('button')
 
+      btnClear.classList.add(
+        'emoji-paint__toolbar-top-btn-clear',
+        'emoji-paint__icon-btn'
+      )
       btnClear.title = 'Clear Canvas'
-      btnClear.innerText = 'Clear'
+      btnClear.innerText = '❌'
       btnClear.addEventListener('click', () => {
         this.paint.canvas.clear()
       })
@@ -476,8 +494,12 @@
     setupBtnCopy() {
       const btnCopy = document.createElement('button')
 
-      btnCopy.title = 'Copy to clipboard'
-      btnCopy.innerText = 'Copy'
+      btnCopy.classList.add(
+        'emoji-paint__toolbar-top-btn-copy',
+        'emoji-paint__icon-btn'
+      )
+      btnCopy.title = 'Copy to Clipboard'
+      btnCopy.innerText = '📋'
       btnCopy.addEventListener('click', () => {
         copyToClipboard(this.paint.canvas.data.toString())
       })
@@ -728,7 +750,10 @@
 
       const btnEdit = this.elements.btnEdit = document.createElement('button')
 
-      btnEdit.classList.add('emoji-paint__palette-editor-btn-edit')
+      btnEdit.classList.add(
+        'emoji-paint__palette-editor-btn-edit',
+        'emoji-paint__icon-btn'
+      )
       btnEdit.title = 'Edit palette'
       btnEdit.textContent = '✏️'
       btnEdit.addEventListener('click', this.onBtnEditClick)
