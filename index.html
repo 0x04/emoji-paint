@@ -570,7 +570,10 @@
     }
 
     onMouseDown(event) {
-      this.select(event.target.dataset.index, event.button)
+      this.select(
+        parseInt(event.target.dataset.index),
+        event.button
+      )
     }
 
     onDropdownChange() {
@@ -839,7 +842,7 @@
       this.canvas = canvas
       this.palette = palette
       this.button = 0
-      this.mouseDown = false
+      this.isMouseDown = false
       this.point = null
       this.prevPoint = null
       this.onMouseDown = this.onMouseDown.bind(this)
@@ -877,20 +880,19 @@
 
     onMouseDown(event) {
       this.button = event.button
-      this.mouseDown = true
+      this.isMouseDown = true
       this.apply(event)
     }
 
     onMouseMove(event) {
-      if (this.mouseDown) {
+      if (this.isMouseDown) {
         this.apply(event)
       }
     }
 
-    onMouseUp(event) {
-      if (this.mouseDown) {
-        this.apply(event)
-        this.mouseDown = false
+    onMouseUp() {
+      if (this.isMouseDown) {
+        this.isMouseDown = false
         this.point = null
         this.prevPoint = null
       }
