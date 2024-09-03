@@ -265,6 +265,8 @@
       return result
     }
   }
+  // @see https://stackoverflow.com/a/71619350/2379235
+  const splitEmoji = (string) => [...new Intl.Segmenter().segment(string)].map(x => x.segment)
 
   function copyToClipboard(text) {
     const previousFocus = window.activeElement
@@ -731,7 +733,7 @@
     }
 
     dispatchChange() {
-      const detail = {palette: [...this.elements.inputEdit.value]}
+      const detail = {palette: splitEmoji(this.elements.inputEdit.value)}
       const event = new CustomEvent(
         'paletteEditorChange',
         {detail, bubbles: true, cancelable: false}
