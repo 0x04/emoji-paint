@@ -66,6 +66,7 @@
         }
 
         .emoji-paint__container {
+            --canvas-background: #FFF;
             --selection-color: #FFFFE0;
 
             border: 1px outset;
@@ -113,10 +114,10 @@
         .emoji-paint__canvas {
             cursor: crosshair;
             user-select: none;
-            background: #FFF;
             padding: 0.25rem;
             border: 1px inset;
             overflow: auto;
+            background: var(--canvas-background);
         }
 
         .emoji-paint__canvas,
@@ -155,9 +156,10 @@
         .emoji-paint__palette-selection-left,
         .emoji-paint__palette-selection-right {
             position: relative;
-            border: 1px outset;
+            border: 1px inset;
             border-radius: 0.25rem;
             padding: 0.175rem;
+            background: var(--canvas-background);
         }
 
         .emoji-paint__palette-selection-left::before,
