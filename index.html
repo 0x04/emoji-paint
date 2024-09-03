@@ -386,6 +386,22 @@
     setItem(key, value) {
       this.data[key] = value
     }
+
+    mergeItem(key, value) {
+      if (value?.constructor === Object || value?.constructor === Array) {
+        if (this.data[key]?.constructor === Object) {
+          this.data[key] = {...this.data[key], ...value}
+          return
+        }
+
+        if (this.data[key]?.constructor === Array) {
+          this.data[key] = [...this.data[key], ...value]
+          return
+        }
+
+        this.setItem(key, value)
+      }
+    }
   }
 
   class Metrics {
@@ -607,15 +623,9 @@
     onEditorChange(event) {
       this.currentPalette = event.detail.palette
 
-      // TODO: Improve! Seems a bit messy.
-      const storagePalettes = this.storage.getItem(Palette.STORAGE_KEY) ?? {}
-
-      this.storage.setItem(
+      this.storage.mergeItem(
         Palette.STORAGE_KEY,
-        {
-          ...storagePalettes,
-          [this.dropdown.currentPaletteName]: event.detail.palette.join('')
-        }
+        {[this.dropdown.currentPaletteName]: this.currentPalette.join('')}
       )
       this.storage.write()
       this.setup()
@@ -797,7 +807,8 @@
     }
 
     dispatchChange() {
-      const detail = {palette: splitEmoji(this.elements.inputEdit.value)}
+      const palette = [...new Set(splitEmoji(this.elements.inputEdit.value))]
+      const detail = {palette}
       const event = new CustomEvent(
         'paletteEditorChange',
         {detail, bubbles: true, cancelable: false}
