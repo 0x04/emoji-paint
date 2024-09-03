@@ -145,6 +145,42 @@
             background-color: var(--selection-color);
         }
 
+        .emoji-paint__palette-selection {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: default;
+        }
+
+        .emoji-paint__palette-selection-left,
+        .emoji-paint__palette-selection-right {
+            position: relative;
+            border: 1px outset;
+            border-radius: 0.25rem;
+            padding: 0.175rem;
+        }
+
+        .emoji-paint__palette-selection-left::before,
+        .emoji-paint__palette-selection-right::before {
+            position: absolute;
+            border-radius: 100%;
+            width: 2.5ch;
+            color: #FFF;
+            background-color: #339;
+            font-size: 0.525rem;
+            text-align: center;
+            line-height: 2.5ch;
+            aspect-ratio: 1;
+        }
+
+        .emoji-paint__palette-selection-left::before {
+            content: 'L';
+        }
+
+        .emoji-paint__palette-selection-right::before {
+            content: 'R';
+        }
+
         /* endregion */
 
     </style>
@@ -454,8 +490,14 @@
       this.elements.items.addEventListener('click', this.onClick)
       this.elements.container.append(this.elements.items)
 
+      this.selection = new PaletteSelection(this)
       this.dropdown = new PaletteDropdown(this.onDropdownChange, this.storage)
-      this.elements.container.prepend(this.dropdown.element)
+
+      this.elements.container.prepend(
+        this.selection.elements.container,
+        this.dropdown.element
+      )
+
       this.dropdown.setup()
     }
 
@@ -478,14 +520,32 @@
         return item
       })
 
-      itemsNew.at(0).checked = true
       items.append(...itemsNew)
 
+      this.select()
       this.callback(this.selected)
     }
 
+    select(index = 0) {
+      const {items} = this.elements
+
+      if (!(index in items.children)) {
+        return
+      }
+
+      let item = items.children[index]
+
+      item.checked = true
+
+      this.selected = this.palette[item.dataset.index]
+
+      const detail = {index, selected: this.selected}
+      const eventChange = new CustomEvent('paletteSelectionChange', {detail})
+      this.elements.container.dispatchEvent(eventChange)
+    }
+
     onClick(event) {
-      this.selected = this.palette[event.target.dataset.index]
+      this.select(event.target.dataset.index)
       this.callback(this.selected)
     }
 
@@ -541,6 +601,46 @@
     dispatchChange() {
       const event = new Event('change', {bubbles: true, cancelable: true})
       this.element.dispatchEvent(event)
+    }
+  }
+
+  class PaletteSelection {
+    elements = {container: null, selectionLeft: null, selectionRight: null}
+
+    constructor(palette) {
+      this.onPaletteSelectionChange = this.onPaletteSelectionChange.bind(this)
+
+      this.palette = palette
+
+      const container = this.elements.container = document.createElement('div')
+
+      container.classList.add('emoji-paint__palette-selection')
+
+      const selectionLeft = this.elements.selectionLeft = document.createElement('div')
+
+      selectionLeft.classList.add('emoji-paint__palette-selection-left')
+      selectionLeft.textContent = DEFAULT_BLANK
+      selectionLeft.title = 'Left mouse button'
+
+      const selectionRight = this.elements.selectionRight = document.createElement('div')
+
+      selectionRight.classList.add('emoji-paint__palette-selection-right')
+      selectionRight.textContent = DEFAULT_BLANK
+      selectionRight.title = 'Right mouse button'
+
+      container.append(selectionLeft, selectionRight)
+
+      this.palette.elements.container.addEventListener(
+        'paletteSelectionChange',
+        this.onPaletteSelectionChange
+      )
+    }
+
+    onPaletteSelectionChange(event) {
+      const {selectionLeft} = this.elements
+      const {selected} = event.detail
+
+      selectionLeft.textContent = selected
     }
   }
 
