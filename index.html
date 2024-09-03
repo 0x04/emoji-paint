@@ -473,13 +473,9 @@
       items: null
     }
 
-    constructor(
-      callback = () => void (0),
-      storage = null,
-    ) {
-      this.callback = callback
+    constructor(storage = null) {
       this.storage = storage
-      this.onClick = this.onClick.bind(this)
+      this.onMouseDown = this.onMouseDown.bind(this)
       this.onDropdownChange = this.onDropdownChange.bind(this)
 
       this.elements.container = document.createElement('div')
@@ -487,7 +483,8 @@
 
       this.elements.items = document.createElement('div')
       this.elements.items.classList.add('emoji-paint__palette-items')
-      this.elements.items.addEventListener('click', this.onClick)
+      this.elements.items.addEventListener('mousedown', this.onMouseDown)
+      this.elements.items.addEventListener('contextmenu', (event) => event.preventDefault())
       this.elements.container.append(this.elements.items)
 
       this.selection = new PaletteSelection(this)
@@ -523,10 +520,9 @@
       items.append(...itemsNew)
 
       this.select()
-      this.callback(this.selected)
     }
 
-    select(index = 0) {
+    select(index = 0, button = 0) {
       const {items} = this.elements
 
       if (!(index in items.children)) {
@@ -539,14 +535,13 @@
 
       this.selected = this.palette[item.dataset.index]
 
-      const detail = {index, selected: this.selected}
+      const detail = {index, button, selected: this.selected}
       const eventChange = new CustomEvent('paletteSelectionChange', {detail})
       this.elements.container.dispatchEvent(eventChange)
     }
 
-    onClick(event) {
-      this.select(event.target.dataset.index)
-      this.callback(this.selected)
+    onMouseDown(event) {
+      this.select(event.target.dataset.index, event.button)
     }
 
     onDropdownChange(event) {
@@ -605,6 +600,7 @@
   }
 
   class PaletteSelection {
+    value = { left: DEFAULT_BLANK, right: DEFAULT_BLANK }
     elements = {container: null, selectionLeft: null, selectionRight: null}
 
     constructor(palette) {
@@ -637,10 +633,20 @@
     }
 
     onPaletteSelectionChange(event) {
-      const {selectionLeft} = this.elements
-      const {selected} = event.detail
+      const {selectionLeft, selectionRight} = this.elements
+      const {selected, button} = event.detail
 
-      selectionLeft.textContent = selected
+      switch (button) {
+        default:
+          this.value.left = selected
+          selectionLeft.textContent = selected
+          break
+
+        case 2:
+          this.value.right = selected
+          selectionRight.textContent = selected
+          break
+      }
     }
   }
 
@@ -675,9 +681,10 @@
   }
 
   class Tool {
-    constructor(canvas) {
-      this.value = DEFAULT_BLANK
+    constructor(canvas, palette) {
       this.canvas = canvas
+      this.palette = palette
+      this.button = 0
       this.mouseDown = false
       this.point = null
       this.prevPoint = null
@@ -715,6 +722,7 @@
     }
 
     onMouseDown(event) {
+      this.button = event.button
       this.mouseDown = true
       this.apply(event)
     }
@@ -742,10 +750,13 @@
           this.prevPoint ?? this.point,
           this.point
         )
+        const value = (this.button === 2)
+            ? this.palette.selection.value.right
+            : this.palette.selection.value.left
 
         this.canvas.draw.apply(
           this.canvas,
-          [this.value, ...points]
+          [value, ...points]
         )
       }
     }
@@ -758,6 +769,7 @@
 
       this.element = document.createElement('div')
       this.element.classList.add('emoji-paint__canvas')
+      this.element.addEventListener('contextmenu', (event) => event.preventDefault())
     }
 
     setup(width, height) {
@@ -794,8 +806,6 @@
     toolbars = {top: null}
 
     constructor(element = document.createElement('div')) {
-      this.onPaletteChange = this.onPaletteChange.bind(this)
-
       const {elements} = this
 
       const head = elements.head = document.createElement('div')
@@ -828,15 +838,11 @@
       )
 
       this.canvas.setup(width, height)
-      this.tool = new DrawTool(this.canvas)
+      this.palette = new Palette(this.storage)
+      this.tool = new DrawTool(this.canvas, this.palette)
       this.tool.activate()
-      this.palette = new Palette(this.onPaletteChange, this.storage)
 
       this.elements.body.append(this.palette.elements.container)
-    }
-
-    onPaletteChange(value) {
-      this.tool.value = value
     }
   }
 
