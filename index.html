@@ -542,16 +542,20 @@
 
   class Palette {
     static ITEM_ID = 'emoji-paint__palette-item'
+    currentPaletteName = null
+    currentPalette = null
     elements = {
       container: null,
       items: null
     }
 
     constructor(storage = null) {
-      this.storage = storage
       this.onMouseDown = this.onMouseDown.bind(this)
       this.onDropdownChange = this.onDropdownChange.bind(this)
       this.onEditorChange = this.onEditorChange.bind(this)
+
+      this.storage = storage
+      this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
 
       const container = this.elements.container = document.createElement('div')
       container.classList.add('emoji-paint__palette')
@@ -564,7 +568,7 @@
       items.addEventListener('contextmenu', (event) => event.preventDefault())
 
       this.selection = new PaletteSelection(this)
-      this.dropdown = new PaletteDropdown(this.onDropdownChange, this.storage)
+      this.dropdown = new PaletteDropdown()
       this.editor = new PaletteEditor(this)
 
       container.append(
@@ -574,11 +578,19 @@
         items
       )
 
-      this.dropdown.setup()
+      this.dropdown.setup(this.mergedPalettes)
     }
 
     static get STORAGE_KEY() {
       return 'palettes'
+    }
+
+    get mergedPalettes() {
+      const storedPalettes = this.storage.getItem(Palette.STORAGE_KEY)
+      return {
+        ...DEFAULT_PALETTES,
+        ...storedPalettes
+      }
     }
 
     setup() {
@@ -630,9 +642,11 @@
       )
     }
 
-    onDropdownChange() {
-      this.currentPalette = this.dropdown.currentPalette
-      this.selected = this.currentPalette[0]
+    onDropdownChange(event) {
+      const {paletteName} = event.detail
+
+      this.currentPaletteName = paletteName
+      this.currentPalette = splitEmoji(this.mergedPalettes[paletteName])
       this.setup()
     }
 
@@ -649,41 +663,23 @@
   }
 
   class PaletteDropdown {
-    constructor(
-      changeHandler = () => void (0),
-      storage = null
-    ) {
+    constructor() {
       this.onChange = this.onChange.bind(this)
-      this.storage = storage
 
       this.element = document.createElement('select')
       this.element.classList.add('emoji-paint__palette_dropdown')
       this.element.addEventListener('change', this.onChange)
     }
 
-    get currentPaletteName() {
-      return this.element.selectedOptions.item(0)?.text
-    }
-
-    get currentPalette() {
-      return splitEmoji(this.element.selectedOptions.item(0).value)
-    }
-
-    setup() {
+    setup(palettes = Object.keys(DEFAULT_PALETTES)) {
       while (this.element.childElementCount) {
         this.element.removeChild(this.element.firstChild)
       }
 
-      const entries = {
-        ...DEFAULT_PALETTES,
-        ...this.storage.getItem(Palette.STORAGE_KEY)
-      }
-      const options = Object.entries(entries).map((entry) => {
-        const [key, value] = entry
+      const options = Object.keys(palettes).map((key) => {
         const option = document.createElement('option')
 
-        option.text = key
-        option.value = value.toString()
+        option.text = option.value = key
 
         return option
       })
@@ -694,11 +690,12 @@
     }
 
     dispatchChange() {
+      const option = this.element.selectedOptions.item(0)
+      const detail = {paletteName: option.value}
       const event = new CustomEvent('paletteDropdownChange', {
         bubbles: true,
         cancelable: false,
-        paletteName: this.currentPaletteName,
-        palette: this.currentPalette,
+        detail
       })
 
       this.element.dispatchEvent(event)
