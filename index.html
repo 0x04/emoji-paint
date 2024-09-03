@@ -123,7 +123,18 @@
         }
 
         .emoji-paint__palette-item {
-            padding: 2px;
+            margin: 0;
+            border-radius: 0.25rem;
+            padding: 0.175rem;
+            appearance: none;
+        }
+
+        .emoji-paint__palette-item::before {
+            content: attr(value);
+        }
+
+        .emoji-paint__palette-item:checked {
+            background: lightyellow;
         }
 
         /* endregion */
@@ -412,6 +423,7 @@
   }
 
   class Palette {
+    static ITEM_ID = 'emoji-paint__palette-item'
     elements = {
       container: null,
       items: null
@@ -447,15 +459,18 @@
       }
 
       const itemsNew = this.palette.map((entry, index) => {
-        const item = document.createElement('button')
+        const item = document.createElement('input')
 
-        item.classList.add('emoji-paint__palette-item')
+        item.classList.add(Palette.ITEM_ID)
+        item.type = 'radio'
+        item.name = Palette.ITEM_ID
+        item.value = entry
         item.dataset.index = index.toString()
-        item.innerText = entry
 
         return item
       })
 
+      itemsNew.at(0).checked = true
       items.append(...itemsNew)
 
       this.callback(this.selected)
@@ -501,7 +516,7 @@
 
       const entries = this.storage.getItem(PaletteDropdown.STORAGE_KEY) ?? DEFAULT_PALETTES
       const options = Object.entries(entries).map((entry) => {
-        const [key, value] = entry;
+        const [key, value] = entry
         const option = document.createElement('option')
 
         option.value = value.toString()
@@ -510,7 +525,7 @@
         return option
       })
 
-      this.element.append(...options);
+      this.element.append(...options)
 
       this.dispatchChange()
     }
