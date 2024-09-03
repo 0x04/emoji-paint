@@ -174,7 +174,7 @@
         }
 
         .emoji-paint__palette-editor-input-edit {
-            width: 100%;
+            flex: 1 1 auto;
             /*
             NOTE: I don't know exactly why .35rem of all things, but it provides
             the same spacing between the symbols as the palette selection
@@ -614,10 +614,13 @@
 
       items.append(...itemsNew)
 
+      const event = new CustomEvent('paletteChange', {bubbles: true, cancelable: false})
+      this.elements.container.dispatchEvent(event)
+
       this.select()
     }
 
-    select(index = 0, button = 0) {
+    select(index = 0, mouseButton = 0) {
       const {items} = this.elements
 
       if (!(index in items.children)) {
@@ -630,7 +633,7 @@
 
       this.selected = this.currentPalette[index]
 
-      const detail = {index, button, selected: this.selected}
+      const detail = {index, mouseButton, selected: this.selected}
       const eventChange = new CustomEvent('paletteSelectionChange', {detail})
       this.elements.container.dispatchEvent(eventChange)
     }
@@ -653,10 +656,25 @@
     onEditorChange(event) {
       this.currentPalette = event.detail.palette
 
-      this.storage.mergeItem(
-        Palette.STORAGE_KEY,
-        {[this.dropdown.currentPaletteName]: this.currentPalette.join('')}
-      )
+      const paletteString = this.currentPalette.join('')
+      const isDefault = (paletteString === DEFAULT_PALETTES[this.currentPaletteName])
+
+      if (isDefault) {
+        const storedPalettes = this.storage.getItem(Palette.STORAGE_KEY)
+
+        delete storedPalettes[this.currentPaletteName]
+
+        this.storage.setItem(
+          Palette.STORAGE_KEY,
+          storedPalettes
+        )
+      } else {
+        this.storage.mergeItem(
+          Palette.STORAGE_KEY,
+          {[this.currentPaletteName]: paletteString}
+        )
+      }
+
       this.storage.write()
       this.setup()
     }
@@ -741,9 +759,9 @@
 
     onPaletteSelectionChange(event) {
       const {selectionLeft, selectionRight} = this.elements
-      const {selected, button} = event.detail
+      const {selected, mouseButton} = event.detail
 
-      switch (button) {
+      switch (mouseButton) {
         default:
           this.value.left = selected
           selectionLeft.textContent = selected
@@ -758,14 +776,22 @@
   }
 
   class PaletteEditor {
-    elements = {container: null, btnEdit: null, inputEdit: null}
+    elements = {
+      container: null,
+      btnEdit: null,
+      btnReset: null,
+      inputEdit: null
+    }
 
     constructor(palette) {
       this.onBtnEditClick = this.onBtnEditClick.bind(this)
+      this.onBtnResetClick = this.onBtnResetClick.bind(this)
       this.onInputEditBlur = this.onInputEditBlur.bind(this)
       this.onInputEditKeyPress = this.onInputEditKeyPress.bind(this)
+      this.onPaletteChange = this.onPaletteChange.bind(this)
 
       this.palette = palette
+      this.palette.elements.container.addEventListener('paletteDropdownChange', this.onPaletteChange)
 
       const container = this.elements.container = document.createElement('div')
 
@@ -781,13 +807,23 @@
       btnEdit.textContent = '✏️'
       btnEdit.addEventListener('click', this.onBtnEditClick)
 
+      const btnReset = this.elements.btnReset = document.createElement('button')
+
+      btnReset.classList.add(
+        'emoji-paint__palette-editor-btn-reset',
+        'emoji-paint__icon-btn'
+      )
+      btnReset.title = 'Reset palette'
+      btnReset.textContent = '🧹'
+      btnReset.addEventListener('click', this.onBtnResetClick)
+
       const inputEdit = this.elements.inputEdit = document.createElement('textarea')
 
       inputEdit.classList.add('emoji-paint__palette-editor-input-edit')
       inputEdit.addEventListener('blur', this.onInputEditBlur)
       inputEdit.addEventListener('keypress', this.onInputEditKeyPress)
 
-      container.append(btnEdit)
+      container.append(btnEdit, btnReset)
     }
 
     enable() {
@@ -808,7 +844,7 @@
 
       inputEdit.replaceWith(items)
 
-      const changed = (this.elements.inputEdit.value !== this.palette.dropdown.currentPalette.join(''))
+      const changed = (this.elements.inputEdit.value !== this.palette.currentPalette.join(''))
 
       if (dispatchChange && changed) {
         this.dispatchChange()
@@ -819,19 +855,26 @@
       return /\p{Emoji}/u.test(character)
     }
 
-    dispatchChange() {
-      const palette = [...new Set(splitEmoji(this.elements.inputEdit.value))]
+    dispatchChange(value = this.elements.inputEdit.value) {
+      const palette = [...new Set(splitEmoji(value))]
       const detail = {palette}
       const event = new CustomEvent(
         'paletteEditorChange',
         {detail, bubbles: true, cancelable: false}
       )
 
+      this.elements.btnReset.disabled = false
       this.elements.container.dispatchEvent(event)
     }
 
     onBtnEditClick() {
       this.enable()
+    }
+
+    onBtnResetClick() {
+      const paletteName = this.palette.currentPaletteName
+      this.dispatchChange(DEFAULT_PALETTES[paletteName])
+      this.elements.btnReset.disabled = true
     }
 
     onInputEditKeyPress(event) {
@@ -853,6 +896,13 @@
 
     onInputEditBlur() {
       this.disable()
+    }
+
+    onPaletteChange(event) {
+      const {currentPaletteName, currentPalette} = this.palette
+      const defaultPalette = DEFAULT_PALETTES[currentPaletteName] ?? []
+      this.elements.btnReset.disabled = (!(currentPaletteName in DEFAULT_PALETTES)
+        || currentPalette.join('') === defaultPalette)
     }
   }
 
@@ -1034,6 +1084,8 @@
       this.height = height
 
       this.storage = new DataStorage()
+      this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
+
       this.canvas = new Canvas()
       this.toolbars.top = new ToolbarTop(this)
 
