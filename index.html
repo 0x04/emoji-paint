@@ -497,26 +497,27 @@
       this.storage = storage
       this.onMouseDown = this.onMouseDown.bind(this)
       this.onDropdownChange = this.onDropdownChange.bind(this)
-      this.onPaletteEditorChange = this.onPaletteEditorChange.bind(this)
+      this.onEditorChange = this.onEditorChange.bind(this)
 
-      this.elements.container = document.createElement('div')
-      this.elements.container.classList.add('emoji-paint__palette')
-      this.elements.container.addEventListener('paletteEditorChange', this.onPaletteEditorChange)
+      const container = this.elements.container = document.createElement('div')
+      container.classList.add('emoji-paint__palette')
+      container.addEventListener('paletteDropdownChange', this.onDropdownChange)
+      container.addEventListener('paletteEditorChange', this.onEditorChange)
 
-      this.elements.items = document.createElement('div')
-      this.elements.items.classList.add('emoji-paint__palette-items')
-      this.elements.items.addEventListener('mousedown', this.onMouseDown)
-      this.elements.items.addEventListener('contextmenu', (event) => event.preventDefault())
-      this.elements.container.append(this.elements.items)
+      const items = this.elements.items = document.createElement('div')
+      items.classList.add('emoji-paint__palette-items')
+      items.addEventListener('mousedown', this.onMouseDown)
+      items.addEventListener('contextmenu', (event) => event.preventDefault())
 
       this.selection = new PaletteSelection(this)
       this.dropdown = new PaletteDropdown(this.onDropdownChange, this.storage)
       this.editor = new PaletteEditor(this)
 
-      this.elements.container.prepend(
+      container.append(
         this.selection.elements.container,
         this.dropdown.element,
-        this.editor.elements.container
+        this.editor.elements.container,
+        items
       )
 
       this.dropdown.setup()
@@ -573,12 +574,12 @@
     }
 
     onDropdownChange() {
-      this.currentPalette = this.dropdown.currentPalette;
+      this.currentPalette = this.dropdown.currentPalette
       this.selected = this.currentPalette[0]
       this.setup()
     }
 
-    onPaletteEditorChange(event) {
+    onEditorChange(event) {
       this.currentPalette = event.detail.palette
 
       // TODO: Improve! Seems a bit messy.
@@ -601,7 +602,7 @@
       changeHandler = () => void (0),
       storage = null
     ) {
-      this.onChange = changeHandler.bind(this)
+      this.onChange = this.onChange.bind(this)
       this.storage = storage
 
       this.element = document.createElement('select')
@@ -642,8 +643,18 @@
     }
 
     dispatchChange() {
-      const event = new Event('change', {bubbles: true, cancelable: true})
+      const event = new CustomEvent('paletteDropdownChange', {
+        bubbles: true,
+        cancelable: false,
+        paletteName: this.currentPaletteName,
+        palette: this.currentPalette,
+      })
+
       this.element.dispatchEvent(event)
+    }
+
+    onChange() {
+      this.dispatchChange()
     }
   }
 
