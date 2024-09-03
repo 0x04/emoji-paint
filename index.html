@@ -66,6 +66,8 @@
         }
 
         .emoji-paint__container {
+            --selection-color: #FFFFE0;
+
             border: 1px outset;
             border-radius: 4px;
             background: #CCC;
@@ -117,6 +119,11 @@
             overflow: auto;
         }
 
+        .emoji-paint__canvas,
+        .emoji-paint__metrics {
+            font-size: 1rem;
+        }
+
         .emoji-paint__palette {
             display: flex;
             gap: 0.5rem;
@@ -127,6 +134,7 @@
             border-radius: 0.25rem;
             padding: 0.175rem;
             appearance: none;
+            transition: background-color 250ms ease-out;
         }
 
         .emoji-paint__palette-item::before {
@@ -134,7 +142,7 @@
         }
 
         .emoji-paint__palette-item:checked {
-            background: lightyellow;
+            background-color: var(--selection-color);
         }
 
         /* endregion */
