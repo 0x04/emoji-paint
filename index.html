@@ -127,6 +127,7 @@
 
         .emoji-paint__palette {
             display: flex;
+            align-items: center;
             gap: 0.5rem;
         }
 
@@ -146,11 +147,20 @@
             background-color: var(--selection-color);
         }
 
+        .emoji-paint__palette_dropdown {
+            flex: 0 1 0;
+            align-self: stretch;
+        }
+
         .emoji-paint__palette-selection {
             display: flex;
             align-items: center;
             gap: 0.25rem;
             cursor: default;
+        }
+
+        .emoji-paint__palette-editor-input-edit {
+            width: 100%
         }
 
         .emoji-paint__palette-selection-left,
@@ -479,9 +489,11 @@
       this.storage = storage
       this.onMouseDown = this.onMouseDown.bind(this)
       this.onDropdownChange = this.onDropdownChange.bind(this)
+      this.onPaletteEditorChange = this.onPaletteEditorChange.bind(this)
 
       this.elements.container = document.createElement('div')
       this.elements.container.classList.add('emoji-paint__palette')
+      this.elements.container.addEventListener('paletteEditorChange', this.onPaletteEditorChange)
 
       this.elements.items = document.createElement('div')
       this.elements.items.classList.add('emoji-paint__palette-items')
@@ -491,10 +503,12 @@
 
       this.selection = new PaletteSelection(this)
       this.dropdown = new PaletteDropdown(this.onDropdownChange, this.storage)
+      this.editor = new PaletteEditor(this)
 
       this.elements.container.prepend(
         this.selection.elements.container,
-        this.dropdown.element
+        this.dropdown.element,
+        this.editor.elements.container
       )
 
       this.dropdown.setup()
@@ -551,6 +565,11 @@
       this.selected = this.palette[0]
       this.setup()
     }
+
+    onPaletteEditorChange(event) {
+      this.palette = event.detail.palette
+      this.setup()
+    }
   }
 
   class PaletteDropdown {
@@ -602,7 +621,7 @@
   }
 
   class PaletteSelection {
-    value = { left: DEFAULT_BLANK, right: DEFAULT_BLANK }
+    value = {left: DEFAULT_BLANK, right: DEFAULT_BLANK}
     elements = {container: null, selectionLeft: null, selectionRight: null}
 
     constructor(palette) {
@@ -649,6 +668,101 @@
           selectionRight.textContent = selected
           break
       }
+    }
+  }
+
+  class PaletteEditor {
+    elements = {container: null, btnEdit: null, inputEdit: null}
+
+    constructor(palette) {
+      this.onBtnEditClick = this.onBtnEditClick.bind(this)
+      this.onInputEditBlur = this.onInputEditBlur.bind(this)
+      this.onInputEditKeyPress = this.onInputEditKeyPress.bind(this)
+
+      this.palette = palette
+
+      const container = this.elements.container = document.createElement('div')
+
+      container.classList.add('emoji-paint__palette-editor')
+
+      const btnEdit = this.elements.btnEdit = document.createElement('button')
+
+      btnEdit.classList.add('emoji-paint__palette-editor-btn-edit')
+      btnEdit.title = 'Edit palette'
+      btnEdit.textContent = '✏️'
+      btnEdit.addEventListener('click', this.onBtnEditClick)
+
+      const inputEdit = this.elements.inputEdit = document.createElement('textarea')
+
+      inputEdit.classList.add('emoji-paint__palette-editor-input-edit')
+      inputEdit.addEventListener('blur', this.onInputEditBlur)
+      inputEdit.addEventListener('keypress', this.onInputEditKeyPress)
+
+      container.append(btnEdit)
+    }
+
+    enable() {
+      const {items} = this.palette.elements
+      const {inputEdit} = this.elements
+
+      inputEdit.value = this.palette.palette.join('')
+      inputEdit.style.setProperty('height', `${items.offsetHeight}px`)
+
+      items.replaceWith(inputEdit)
+
+      inputEdit.focus()
+    }
+
+    disable(dispatchChange = true) {
+      const {items} = this.palette.elements
+      const {inputEdit} = this.elements
+
+      inputEdit.replaceWith(items)
+
+      const changed = (this.elements.inputEdit.value !== this.palette.palette.join(''))
+
+      if (dispatchChange && changed) {
+        this.dispatchChange()
+      }
+    }
+
+    isEmoji(character) {
+      return /\p{Emoji}/u.test(character)
+    }
+
+    dispatchChange() {
+      const detail = {palette: [...this.elements.inputEdit.value]}
+      const event = new CustomEvent(
+        'paletteEditorChange',
+        {detail, bubbles: true, cancelable: false}
+      )
+
+      this.elements.container.dispatchEvent(event)
+    }
+
+    onBtnEditClick(event) {
+      this.enable()
+    }
+
+    onInputEditKeyPress(event) {
+      switch (event.code) {
+        default:
+          const value = String.fromCharCode(event.charCode)
+
+          if (!this.isEmoji(value)) {
+            event.preventDefault()
+            alert('This not a valid emoji character!')
+          }
+          break
+
+        case 'Enter':
+          event.target.blur()
+          break
+      }
+    }
+
+    onInputEditBlur() {
+      this.disable()
     }
   }
 
@@ -753,8 +867,8 @@
           this.point
         )
         const value = (this.button === 2)
-            ? this.palette.selection.value.right
-            : this.palette.selection.value.left
+          ? this.palette.selection.value.right
+          : this.palette.selection.value.left
 
         this.canvas.draw.apply(
           this.canvas,
