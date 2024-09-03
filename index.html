@@ -568,7 +568,7 @@
       this.select(event.target.dataset.index, event.button)
     }
 
-    onDropdownChange(event) {
+    onDropdownChange() {
       this.palette = [...this.dropdown.selected]
       this.selected = this.palette[0]
       this.setup()
@@ -748,7 +748,7 @@
       this.elements.container.dispatchEvent(event)
     }
 
-    onBtnEditClick(event) {
+    onBtnEditClick() {
       this.enable()
     }
 
