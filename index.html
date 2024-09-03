@@ -105,10 +105,14 @@
             display: flex;
         }
 
-        .emoji-paint__toolbar-top hr {
+        .emoji-paint__toolbar-separator {
             flex: 0 1 0;
             margin-block: 0.25rem;
             margin-inline: 0.5rem;
+        }
+
+        .emoji-paint__toolbar-spacer {
+            flex: 1 1 auto;
         }
 
         .emoji-paint__toolbar-top-new input[type='number'] {
@@ -423,6 +427,8 @@
 
   class Toolbar {
     items = {}
+    countSeparator = 0
+    countSpacer = 0
 
     constructor(className) {
       this.element = document.createElement('div')
@@ -437,7 +443,17 @@
     attachSeparator() {
       const separator = document.createElement('hr')
 
-      this.element.append(separator)
+      separator.classList.add('emoji-paint__toolbar-separator')
+
+      this.attachItem(`separator-${this.countSeparator++}`, separator)
+    }
+
+    attachSpacer() {
+      const spacer = document.createElement('div')
+
+      spacer.classList.add('emoji-paint__toolbar-spacer')
+
+      this.attachItem(`spacer-${this.countSpacer++}`, spacer)
     }
   }
 
@@ -449,11 +465,11 @@
     }
 
     setup() {
+      this.setupBtnCopy()
+      this.attachSpacer()
       this.setupNew()
       this.attachSeparator()
       this.setupBtnClear()
-      this.attachSeparator()
-      this.setupBtnCopy()
     }
 
     setupNew() {
