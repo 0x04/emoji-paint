@@ -554,13 +554,19 @@
       this.onDropdownChange = this.onDropdownChange.bind(this)
       this.onEditorChange = this.onEditorChange.bind(this)
 
+      document.addEventListener('paletteDropdownChange', this.onDropdownChange)
+      document.addEventListener('paletteEditorChange', this.onEditorChange)
+
       this.storage = storage
       this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
 
+      // TODO: Improve or unify data
+      const mergedPalettes = this.mergedPalettes
+      this.currentPaletteName = Object.keys(mergedPalettes).at(0)
+      this.currentPalette = splitEmoji(mergedPalettes[this.currentPaletteName])
+
       const container = this.elements.container = document.createElement('div')
       container.classList.add('emoji-paint__palette')
-      container.addEventListener('paletteDropdownChange', this.onDropdownChange)
-      container.addEventListener('paletteEditorChange', this.onEditorChange)
 
       const items = this.elements.items = document.createElement('div')
       items.classList.add('emoji-paint__palette-items')
@@ -634,7 +640,11 @@
       this.selected = this.currentPalette[index]
 
       const detail = {index, mouseButton, selected: this.selected}
-      const eventChange = new CustomEvent('paletteSelectionChange', {detail})
+      const eventChange = new CustomEvent('paletteSelectionChange', {
+        bubbles: true,
+        cancelable: false,
+        detail
+      })
       this.elements.container.dispatchEvent(eventChange)
     }
 
@@ -703,8 +713,6 @@
       })
 
       this.element.append(...options)
-
-      this.dispatchChange()
     }
 
     dispatchChange() {
@@ -751,7 +759,7 @@
 
       container.append(selectionLeft, selectionRight)
 
-      this.palette.elements.container.addEventListener(
+      document.addEventListener(
         'paletteSelectionChange',
         this.onPaletteSelectionChange
       )
@@ -1057,49 +1065,52 @@
   }
 
   class Paint {
-    elements = {container: null, head: null}
+    elements = {container: null, head: null, body: null}
     toolbars = {top: null}
+    width = 10
+    height = 10
 
     constructor(element = document.createElement('div')) {
-      const {elements} = this
-
-      const head = elements.head = document.createElement('div')
-      head.classList.add('emoji-paint__head')
-      head.innerText = '🎨 EmojiPaint'
-
-      const body = elements.body = document.createElement('div')
-      body.classList.add('emoji-paint__body')
-
-      const container = elements.container = element
-      container.classList.add('emoji-paint__container')
-      container.append(head, body)
-    }
-
-    setup(width = 10, height = 10) {
-      if (!this.elements.container.parentElement) {
-        document.body.append(this.elements.container)
-      }
-
-      this.width = width
-      this.height = height
-
       this.storage = new DataStorage()
       this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
 
       this.canvas = new Canvas()
-      this.toolbars.top = new ToolbarTop(this)
-
-      this.elements.body.append(
-        this.toolbars.top.element,
-        this.canvas.element
-      )
-
-      this.canvas.setup(width, height)
       this.palette = new Palette(this.storage)
       this.tool = new DrawTool(this.canvas, this.palette)
-      this.tool.activate()
+      this.toolbars.top = new ToolbarTop(this)
 
-      this.elements.body.append(this.palette.elements.container)
+      const {elements} = this
+      const container = elements.container = element
+      const head = elements.head = document.createElement('div')
+      const body = elements.body = document.createElement('div')
+
+      container.classList.add('emoji-paint__container')
+
+      head.classList.add('emoji-paint__head')
+      head.innerText = '🎨 EmojiPaint'
+
+      body.classList.add('emoji-paint__body')
+
+      body.append(
+        this.toolbars.top.element,
+        this.canvas.element,
+        this.palette.elements.container,
+      )
+
+      container.append(head, body)
+
+      if (!this.elements.container.parentElement) {
+        document.body.append(this.elements.container)
+      }
+    }
+
+    setup(width = 10, height = 10) {
+      this.width = width
+      this.height = height
+
+      this.canvas.setup(width, height)
+      this.palette.setup()
+      this.tool.activate()
     }
   }
 
