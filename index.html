@@ -223,10 +223,20 @@
 <script>
 
   const DEFAULT_BLANK = '⬜'
-  const DEFAULT_PALETTES = {
-    'Squares': '⬛⬜🟥🟦🟧🟨🟩🟪🟫',
-    'Circles': '⚫⚪🔴🔵🟠🟡🟢🟣🟤',
-  }
+  const DEFAULT_PALETTES = [
+    {
+      name: 'Squares',
+      entries: ['⬛', '⬜', '🟥', '🟦', '🟧', '🟨', '🟩', '🟪', '🟫']
+    },
+    {
+      name: 'Circles',
+      entries: ['⚫', '⚪', '🔴', '🔵', '🟠', '🟡', '🟢', '🟣', '🟤'],
+    },
+    {
+      name: 'Custom',
+      entries: ['👤']
+    }
+  ]
   const DRAW_FUNCTIONS = {
     // DDA Line Algorithm
     lineSimple(pointA, pointB) {
@@ -542,8 +552,6 @@
 
   class Palette {
     static ITEM_ID = 'emoji-paint__palette-item'
-    currentPaletteName = null
-    currentPalette = null
     elements = {
       container: null,
       items: null
@@ -558,12 +566,32 @@
       document.addEventListener('paletteEditorChange', this.onEditorChange)
 
       this.storage = storage
-      this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
+      this.palettes = structuredClone(DEFAULT_PALETTES)
 
-      // TODO: Improve or unify data
-      const mergedPalettes = this.mergedPalettes
-      this.currentPaletteName = Object.keys(mergedPalettes).at(0)
-      this.currentPalette = splitEmoji(mergedPalettes[this.currentPaletteName])
+      let palettesStored = this.storage.getItem(Palette.STORAGE_KEY) ?? []
+
+      // FIXME: Rewrite old palette structure before ed81e83c0f487524d642cabb97d27bbce0621103
+      if (palettesStored.constructor === Object) {
+        const oldFormatPalettes = palettesStored
+        palettesStored = []
+        for (const [name, value] of Object.entries(oldFormatPalettes)) {
+          palettesStored.push({name, entries: [...value]})
+        }
+      }
+
+      palettesStored.forEach((palette) => {
+        const index = this.palettes.findIndex((paletteDefault) => paletteDefault.name === palette.name)
+
+        if (index < 0) {
+          this.palettes.push(palette)
+          return
+        }
+
+        this.palettes[index] = palette
+      })
+
+      this.paletteCurrent = this.palettes.at(0)
+      this.selected = this.paletteCurrent.entries.at(0)
 
       const container = this.elements.container = document.createElement('div')
       container.classList.add('emoji-paint__palette')
@@ -584,19 +612,11 @@
         items
       )
 
-      this.dropdown.setup(this.mergedPalettes)
+      this.dropdown.setup(this.palettes)
     }
 
     static get STORAGE_KEY() {
       return 'palettes'
-    }
-
-    get mergedPalettes() {
-      const storedPalettes = this.storage.getItem(Palette.STORAGE_KEY)
-      return {
-        ...DEFAULT_PALETTES,
-        ...storedPalettes
-      }
     }
 
     setup() {
@@ -606,7 +626,7 @@
         items.removeChild(items.lastChild)
       }
 
-      const itemsNew = this.currentPalette.map((entry, index) => {
+      const itemsNew = this.paletteCurrent.entries.map((entry, index) => {
         const item = document.createElement('input')
 
         item.classList.add(Palette.ITEM_ID)
@@ -620,7 +640,13 @@
 
       items.append(...itemsNew)
 
-      const event = new CustomEvent('paletteChange', {bubbles: true, cancelable: false})
+      const event = new CustomEvent(
+        'paletteChange', {
+          bubbles: true,
+          cancelable: false,
+          detail: {palette: this.paletteCurrent}
+        }
+      )
       this.elements.container.dispatchEvent(event)
 
       this.select()
@@ -633,11 +659,11 @@
         return
       }
 
-      let item = items.children[index]
+      const item = items.children.item(index)
 
       item.checked = true
 
-      this.selected = this.currentPalette[index]
+      this.selected = this.paletteCurrent.entries[index]
 
       const detail = {index, mouseButton, selected: this.selected}
       const eventChange = new CustomEvent('paletteSelectionChange', {
@@ -656,32 +682,38 @@
     }
 
     onDropdownChange(event) {
-      const {paletteName} = event.detail
-
-      this.currentPaletteName = paletteName
-      this.currentPalette = splitEmoji(this.mergedPalettes[paletteName])
+      this.paletteCurrent = this.palettes.find((palette) => palette.name === event.detail.paletteName)
       this.setup()
     }
 
     onEditorChange(event) {
-      this.currentPalette = event.detail.palette
+      const paletteCurrent = this.paletteCurrent = event.detail.palette
+      const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteCurrent.name)
 
-      const paletteString = this.currentPalette.join('')
-      const isDefault = (paletteString === DEFAULT_PALETTES[this.currentPaletteName])
+      // Replace previous palette item with changed one
+      this.palettes = this.palettes.map(
+        (palette) => (palette.name === paletteCurrent.name)
+          ? paletteCurrent
+          : palette
+      )
+
+      const isDefault = (
+        paletteCurrent.entries.length === paletteDefault.entries.length
+        && paletteCurrent.entries.every((entry, index) => entry === paletteDefault.entries.at(index))
+      )
 
       if (isDefault) {
-        const storedPalettes = this.storage.getItem(Palette.STORAGE_KEY)
-
-        delete storedPalettes[this.currentPaletteName]
+        // TODO: Implement delete or so in storage
+        const palettesStored = this.storage.getItem(Palette.STORAGE_KEY)
 
         this.storage.setItem(
           Palette.STORAGE_KEY,
-          storedPalettes
+          palettesStored.filter((palette) => palette.name !== paletteCurrent.name)
         )
       } else {
         this.storage.mergeItem(
           Palette.STORAGE_KEY,
-          {[this.currentPaletteName]: paletteString}
+          [paletteCurrent]
         )
       }
 
@@ -699,15 +731,15 @@
       this.element.addEventListener('change', this.onChange)
     }
 
-    setup(palettes = Object.keys(DEFAULT_PALETTES)) {
+    setup(palettes = DEFAULT_PALETTES) {
       while (this.element.childElementCount) {
         this.element.removeChild(this.element.firstChild)
       }
 
-      const options = Object.keys(palettes).map((key) => {
+      const options = palettes.map((palette) => {
         const option = document.createElement('option')
 
-        option.text = option.value = key
+        option.text = option.value = palette.name
 
         return option
       })
@@ -736,22 +768,18 @@
     value = {left: DEFAULT_BLANK, right: DEFAULT_BLANK}
     elements = {container: null, selectionLeft: null, selectionRight: null}
 
-    constructor(palette) {
+    constructor() {
       this.onPaletteSelectionChange = this.onPaletteSelectionChange.bind(this)
 
-      this.palette = palette
-
       const container = this.elements.container = document.createElement('div')
+      const selectionLeft = this.elements.selectionLeft = document.createElement('div')
+      const selectionRight = this.elements.selectionRight = document.createElement('div')
 
       container.classList.add('emoji-paint__palette-selection')
-
-      const selectionLeft = this.elements.selectionLeft = document.createElement('div')
 
       selectionLeft.classList.add('emoji-paint__palette-selection-left')
       selectionLeft.textContent = DEFAULT_BLANK
       selectionLeft.title = 'Left mouse button'
-
-      const selectionRight = this.elements.selectionRight = document.createElement('div')
 
       selectionRight.classList.add('emoji-paint__palette-selection-right')
       selectionRight.textContent = DEFAULT_BLANK
@@ -798,14 +826,16 @@
       this.onInputEditKeyPress = this.onInputEditKeyPress.bind(this)
       this.onPaletteChange = this.onPaletteChange.bind(this)
 
+      document.addEventListener('paletteDropdownChange', this.onPaletteChange)
+
       this.palette = palette
-      this.palette.elements.container.addEventListener('paletteDropdownChange', this.onPaletteChange)
 
       const container = this.elements.container = document.createElement('div')
+      const btnEdit = this.elements.btnEdit = document.createElement('button')
+      const btnReset = this.elements.btnReset = document.createElement('button')
+      const inputEdit = this.elements.inputEdit = document.createElement('textarea')
 
       container.classList.add('emoji-paint__palette-editor')
-
-      const btnEdit = this.elements.btnEdit = document.createElement('button')
 
       btnEdit.classList.add(
         'emoji-paint__palette-editor-btn-edit',
@@ -815,8 +845,6 @@
       btnEdit.textContent = '✏️'
       btnEdit.addEventListener('click', this.onBtnEditClick)
 
-      const btnReset = this.elements.btnReset = document.createElement('button')
-
       btnReset.classList.add(
         'emoji-paint__palette-editor-btn-reset',
         'emoji-paint__icon-btn'
@@ -825,20 +853,20 @@
       btnReset.textContent = '🧹'
       btnReset.addEventListener('click', this.onBtnResetClick)
 
-      const inputEdit = this.elements.inputEdit = document.createElement('textarea')
-
       inputEdit.classList.add('emoji-paint__palette-editor-input-edit')
       inputEdit.addEventListener('blur', this.onInputEditBlur)
       inputEdit.addEventListener('keypress', this.onInputEditKeyPress)
 
       container.append(btnEdit, btnReset)
+
+      this.onPaletteChange()
     }
 
     enable() {
       const {items} = this.palette.elements
       const {inputEdit} = this.elements
 
-      inputEdit.value = this.palette.currentPalette.join('')
+      inputEdit.value = this.palette.paletteCurrent.entries.join('')
       inputEdit.style.setProperty('height', `${items.offsetHeight}px`)
 
       items.replaceWith(inputEdit)
@@ -852,7 +880,7 @@
 
       inputEdit.replaceWith(items)
 
-      const changed = (this.elements.inputEdit.value !== this.palette.currentPalette.join(''))
+      const changed = (this.elements.inputEdit.value !== this.palette.paletteCurrent.entries.join(''))
 
       if (dispatchChange && changed) {
         this.dispatchChange()
@@ -864,7 +892,10 @@
     }
 
     dispatchChange(value = this.elements.inputEdit.value) {
-      const palette = [...new Set(splitEmoji(value))]
+      const palette = {
+        name: this.palette.paletteCurrent.name,
+        entries: [...new Set(splitEmoji(value))]
+      }
       const detail = {palette}
       const event = new CustomEvent(
         'paletteEditorChange',
@@ -880,8 +911,10 @@
     }
 
     onBtnResetClick() {
-      const paletteName = this.palette.currentPaletteName
-      this.dispatchChange(DEFAULT_PALETTES[paletteName])
+      const paletteName = this.palette.paletteCurrent.name
+      const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteName)
+
+      this.dispatchChange(paletteDefault.entries.join(''))
       this.elements.btnReset.disabled = true
     }
 
@@ -906,11 +939,15 @@
       this.disable()
     }
 
-    onPaletteChange(event) {
-      const {currentPaletteName, currentPalette} = this.palette
-      const defaultPalette = DEFAULT_PALETTES[currentPaletteName] ?? []
-      this.elements.btnReset.disabled = (!(currentPaletteName in DEFAULT_PALETTES)
-        || currentPalette.join('') === defaultPalette)
+    onPaletteChange() {
+      const paletteCurrent = this.palette.paletteCurrent
+      const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteCurrent.name)
+
+      this.elements.btnReset.disabled = (!paletteDefault)
+        || (
+          paletteCurrent.entries.length === paletteDefault.entries.length
+          && paletteCurrent.entries.every((entry, index) => entry === paletteDefault.entries.at(index))
+        )
     }
   }
 
@@ -1072,8 +1109,6 @@
 
     constructor(element = document.createElement('div')) {
       this.storage = new DataStorage()
-      this.storage.mergeItem(Palette.STORAGE_KEY, {'Custom': '👤'})
-
       this.canvas = new Canvas()
       this.palette = new Palette(this.storage)
       this.tool = new DrawTool(this.canvas, this.palette)
