@@ -824,6 +824,7 @@
       btnReset: null,
       inputEdit: null
     }
+    valueCurrent = null
 
     constructor(palette) {
       this.onBtnEditClick = this.onBtnEditClick.bind(this)
@@ -872,7 +873,7 @@
       const {items} = this.palette.elements
       const {inputEdit} = this.elements
 
-      inputEdit.value = this.palette.paletteCurrent.entries.join('')
+      inputEdit.value = this.valueCurrent
       inputEdit.style.setProperty('height', `${items.offsetHeight}px`)
 
       items.replaceWith(inputEdit)
@@ -880,21 +881,17 @@
       inputEdit.focus()
     }
 
-    disable(dispatchChange = true) {
+    disable() {
       const {items} = this.palette.elements
       const {inputEdit} = this.elements
 
       inputEdit.replaceWith(items)
 
-      const changed = (this.elements.inputEdit.value !== this.palette.paletteCurrent.entries.join(''))
-
-      if (dispatchChange && changed) {
-        this.dispatchChange()
-      }
+      this.dispatchChange()
     }
 
     isEmoji(character) {
-      return /\p{Emoji}/u.test(character)
+      return /(?!\d)\p{Emoji}/u.test(character)
     }
 
     dispatchChange(value = this.elements.inputEdit.value) {
@@ -902,12 +899,20 @@
         name: this.palette.paletteCurrent.name,
         entries: [...new Set(splitEmoji(value))]
       }
+      const valueNew = palette.entries.join('')
+      const changed = (this.valueCurrent !== valueNew)
+
+      if (!changed) {
+        return
+      }
+
       const detail = {palette}
       const event = new CustomEvent(
         'paletteEditorChange',
         {detail, bubbles: true, cancelable: false}
       )
 
+      this.valueCurrent = valueNew
       this.elements.btnReset.disabled = false
       this.elements.container.dispatchEvent(event)
     }
@@ -954,6 +959,8 @@
           paletteCurrent.entries.length === paletteDefault.entries.length
           && paletteCurrent.entries.every((entry, index) => entry === paletteDefault.entries.at(index))
         )
+
+      this.valueCurrent = paletteCurrent.entries.join('')
     }
   }
 
