@@ -554,8 +554,14 @@
     static ITEM_ID = 'emoji-paint__palette-item'
     elements = {
       container: null,
-      items: null
+      items: null,
     }
+    editor = null
+    dropdown = null
+    paletteCurrent = null
+    palettes = null
+    selection = null
+    storage = null
 
     constructor(storage = null) {
       this.onMouseDown = this.onMouseDown.bind(this)
@@ -591,12 +597,12 @@
       })
 
       this.paletteCurrent = this.palettes.at(0)
-      this.selected = this.paletteCurrent.entries.at(0)
 
       const container = this.elements.container = document.createElement('div')
+      const items = this.elements.items = document.createElement('div')
+
       container.classList.add('emoji-paint__palette')
 
-      const items = this.elements.items = document.createElement('div')
       items.classList.add('emoji-paint__palette-items')
       items.addEventListener('mousedown', this.onMouseDown)
       items.addEventListener('contextmenu', (event) => event.preventDefault())
@@ -659,13 +665,13 @@
         return
       }
 
+      const selected = this.paletteCurrent.entries[index]
       const item = items.children.item(index)
 
       item.checked = true
 
-      this.selected = this.paletteCurrent.entries[index]
 
-      const detail = {index, mouseButton, selected: this.selected}
+      const detail = {index, mouseButton, selected}
       const eventChange = new CustomEvent('paletteSelectionChange', {
         bubbles: true,
         cancelable: false,
