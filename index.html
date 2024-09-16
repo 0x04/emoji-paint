@@ -579,10 +579,15 @@
       // FIXME: Rewrite old palette structure before ed81e83c0f487524d642cabb97d27bbce0621103
       if (palettesStored.constructor === Object) {
         const oldFormatPalettes = palettesStored
+
         palettesStored = []
+
         for (const [name, value] of Object.entries(oldFormatPalettes)) {
           palettesStored.push({name, entries: [...value]})
         }
+
+        this.storage.setItem(Palette.STORAGE_KEY, palettesStored)
+        this.storage.write()
       }
 
       palettesStored.forEach((palette) => {
