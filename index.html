@@ -700,6 +700,7 @@
     onEditorChange(event) {
       const paletteCurrent = this.paletteCurrent = event.detail.palette
       const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteCurrent.name)
+      let palettesStored = this.storage.getItem(Palette.STORAGE_KEY) ?? []
 
       // Replace previous palette item with changed one
       this.palettes = this.palettes.map(
@@ -715,18 +716,23 @@
 
       if (isDefault) {
         // TODO: Implement delete or so in storage
-        const palettesStored = this.storage.getItem(Palette.STORAGE_KEY)
-
-        this.storage.setItem(
-          Palette.STORAGE_KEY,
-          palettesStored.filter((palette) => palette.name !== paletteCurrent.name)
-        )
+        palettesStored = palettesStored.filter((palette) => palette.name !== paletteCurrent.name)
       } else {
-        this.storage.mergeItem(
-          Palette.STORAGE_KEY,
-          [paletteCurrent]
-        )
+        // TODO: Simplify merge
+        const indexStored = palettesStored.findIndex((paletteStored) => paletteStored.name === paletteCurrent.name)
+
+        if (indexStored > -1) {
+          palettesStored.splice(indexStored, 1, paletteCurrent)
+        }
+        else {
+          palettesStored.push(paletteCurrent)
+        }
       }
+
+      this.storage.setItem(
+        Palette.STORAGE_KEY,
+        palettesStored
+      )
 
       this.storage.write()
       this.setup()
