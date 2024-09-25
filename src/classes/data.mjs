@@ -17,9 +17,32 @@ export class Data {
     this.height = height
     this.blank = blank
     this.separator = separator
-    this.matrix = new Array(this.height)
+
+    const matrix = new Array(this.height)
       .fill(undefined)
       .map(() => new Array(this.width).fill(blank))
+
+    this.matrix = this.merge(matrix)
+  }
+
+  merge(newMatrix) {
+    if (this.matrix instanceof Array) {
+      for (
+        let index = 0, length = Math.min(this.matrix.length, newMatrix.length);
+        index < length;
+        index++
+      ) {
+        const linePrev = this.matrix[index]
+        const lineCurr = newMatrix[index]
+
+        newMatrix[index] = [
+          ...linePrev.slice(0, lineCurr.length),
+          ...lineCurr.slice(linePrev.length)
+        ]
+      }
+    }
+
+    return newMatrix
   }
 
   clear() {
