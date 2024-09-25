@@ -10,6 +10,7 @@ export class ToolbarTop extends Toolbar {
 
   setup() {
     this.setupBtnCopy()
+    this.setupBtnDownload()
     this.attachSpacer()
     this.setupNew()
     this.attachSeparator()
@@ -81,5 +82,31 @@ export class ToolbarTop extends Toolbar {
     })
 
     this.attachItem('btnCopy', btnCopy)
+  }
+
+  setupBtnDownload() {
+    const btnDownload = document.createElement('button')
+
+    btnDownload.classList.add(
+      'emoji-paint__toolbar-top-btn-download',
+      'emoji-paint__icon-btn'
+    )
+    btnDownload.title = 'Download'
+    btnDownload.innerText = '⬇️'
+    btnDownload.addEventListener('click', () => {
+      const anchor = document.createElement('a')
+      const data = this.paint.canvas.data.toString()
+      const blob = new Blob([ data ], { type: 'text/plain' })
+
+      anchor.download = 'emoji-paint.txt'
+      anchor.href = URL.createObjectURL(blob)
+
+      document.body.append(anchor)
+
+      anchor.click()
+      anchor.remove()
+    })
+
+    this.attachItem('btnDownload', btnDownload)
   }
 }
