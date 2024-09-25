@@ -34,7 +34,7 @@ export class Canvas {
 
     element.innerText = data.toString()
 
-    this.rectangle = new Rectangle(0, 0, element.clientWidth, element.clientHeight)
+    this.rectangle = new Rectangle(0, 0, element.scrollWidth, element.scrollHeight)
     this.mouseGrid = new MouseGrid(this.rectangle, this.metrics.rectangle)
   }
 

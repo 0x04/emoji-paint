@@ -30,9 +30,11 @@ export class MouseGrid {
   }
 
   getPointFromEvent(event) {
+    const { scrollTop, scrollLeft } = event.target
+
     return this.getPointFromCoordinate(
-      event.offsetX - this.gridRect.x,
-      event.offsetY - this.gridRect.y
+      scrollLeft + event.offsetX - this.gridRect.x,
+      scrollTop + event.offsetY - this.gridRect.y
     )
   }
 }
