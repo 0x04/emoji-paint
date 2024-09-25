@@ -115,6 +115,10 @@ input, button, textarea, select {
 
 /* region Standard HTML tags */
 
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 1rem;
@@ -136,9 +140,12 @@ body {
   --selection-color: #ffffe0;
   --label-emoji-text-shadow: 1px 1px 0 #0006;
 
+  display: flex;
+  flex-direction: column;
   border: 1px outset;
   border-radius: 4px;
   background: #ccc;
+  height: 100%;
 }
 
 .emoji-paint__head {
@@ -155,6 +162,7 @@ body {
 
 .emoji-paint__body {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
@@ -191,13 +199,15 @@ body {
 }
 
 .emoji-paint__canvas {
+  flex: 1 1 auto;
+  border: 1px inset;
+  padding: 0.25rem;
+  height: 0;
+  overflow: auto;
+  white-space: pre;
+  background: var(--canvas-background);
   cursor: crosshair;
   user-select: none;
-  padding: 0.25rem;
-  border: 1px inset;
-  overflow: auto;
-  background: var(--canvas-background);
-  white-space: pre;
 }
 
 .emoji-paint__canvas,
