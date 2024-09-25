@@ -12,19 +12,19 @@ export class ToolbarTop extends Toolbar {
     this.setupBtnCopy()
     this.setupBtnDownload()
     this.attachSpacer()
-    this.setupNew()
+    this.setupResize()
     this.attachSeparator()
     this.setupBtnClear()
   }
 
-  setupNew() {
-    const containerNew = document.createElement('div')
+  setupResize() {
+    const containerResize = document.createElement('div')
     const label = document.createElement('span')
     const inputWidth = document.createElement('input')
     const inputHeight = document.createElement('input')
-    const btnNew = document.createElement('button')
+    const btnResize = document.createElement('button')
 
-    containerNew.classList.add('emoji-paint__toolbar-top-new')
+    containerResize.classList.add('emoji-paint__toolbar-top-resize')
 
     label.classList.add('emoji-paint__toolbar-label')
     label.innerText = 'Size'
@@ -33,13 +33,13 @@ export class ToolbarTop extends Toolbar {
     inputWidth.value = this.paint.width
     inputHeight.value = this.paint.height
 
-    btnNew.classList.add(
-      'emoji-paint__toolbar-top-btn-new',
+    btnResize.classList.add(
+      'emoji-paint__toolbar-top-btn-resize',
       'emoji-paint__icon-btn'
     )
-    btnNew.title = 'New Canvas'
-    btnNew.innerText = '💥️'
-    btnNew.addEventListener('click', () => {
+    btnResize.title = 'Resize Canvas'
+    btnResize.innerText = '📐'
+    btnResize.addEventListener('click', () => {
         this.paint.canvas.setup(
           parseInt(inputWidth.value),
           parseInt(inputHeight.value)
@@ -47,9 +47,9 @@ export class ToolbarTop extends Toolbar {
       }
     )
 
-    containerNew.append(label, inputWidth, inputHeight, btnNew)
+    containerResize.append(label, inputWidth, inputHeight, btnResize)
 
-    this.attachItem('new', containerNew)
+    this.attachItem('resize', containerResize)
   }
 
   setupBtnClear() {
@@ -60,7 +60,7 @@ export class ToolbarTop extends Toolbar {
       'emoji-paint__icon-btn'
     )
     btnClear.title = 'Clear Canvas'
-    btnClear.innerText = '❌'
+    btnClear.innerText = '💥️'
     btnClear.addEventListener('click', () => {
       this.paint.canvas.clear()
     })
