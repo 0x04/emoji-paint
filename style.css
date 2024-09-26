@@ -169,10 +169,13 @@ body {
 }
 
 .emoji-paint__icon-btn {
-  padding: 1px;
+  border: 1px outset #0006;
+  border-radius: 3px;
+  padding: 2px;
   line-height: 1.1875rem;
   text-shadow: var(--label-emoji-text-shadow);
   vertical-align: top;
+  background-color: buttonface;
 }
 
 .emoji-paint__toolbar-top {
@@ -187,6 +190,12 @@ body {
 
 .emoji-paint__toolbar-spacer {
   flex: 1 1 auto;
+}
+
+.emoji-paint__toolbar-top-btn-upload {
+  width: 0;
+  position: absolute;
+  visibility: hidden;
 }
 
 .emoji-paint__toolbar-top-resize input[type='number'] {
