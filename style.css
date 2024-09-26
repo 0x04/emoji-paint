@@ -1,104 +1,3 @@
-/* Vite defaults
-
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
-*/
-
 /* region Reset */
 /* @see https://www.joshwcomeau.com/css/custom-css-reset */
 
@@ -106,7 +5,7 @@ button:focus-visible {
   box-sizing: border-box;
 }
 
-input, button, textarea, select {
+input, button, select, textarea {
   font: inherit;
   color: inherit;
 }
@@ -115,186 +14,251 @@ input, button, textarea, select {
 
 /* region Standard HTML tags */
 
-html, body {
-  height: 100%;
-}
+@layer default, overrides;
 
-body {
-  margin: 0;
-  padding: 1rem;
-  color: #333;
-  font-family: "Consolas", monospace;
-}
+@layer default {
+
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 1rem;
+    color: #333;
+    font-family: "Consolas", monospace;
+    line-height: 1.25;
+  }
+
+  :is(input, button, select, textarea) {
+    border: 1px outset #0006;
+    border-radius: 0.25rem;
+    padding: 4px;
+  }
+
+  :is(input, button, select, textarea):hover {
+    background-color: var(--selection-color);
+  }
+
+  :is(input[type="text"], input[type="number"], select, textarea) {
+    border-style: inset;
+  }
+
+  :is(input, button, select, textarea):disabled {
+    opacity: 0.5;
+  }
+
 
 /* endregion */
 
 /* region EmojiPaint */
+  .emoji-paint__metrics {
+    position: absolute;
+    /* TODO: same style as canvas element */
+  }
 
-.emoji-paint__metrics {
-  position: absolute;
-  /* TODO: same style as canvas element */
+  .emoji-paint__container {
+    --canvas-background: #fff;
+    --selection-color: #ffffe0;
+    --label-emoji-text-shadow: 1px 1px 0 #0006;
+
+    display: flex;
+    flex-direction: column;
+    border: 1px outset;
+    border-radius: 4px;
+    background: #ccc;
+    height: 100%;
+  }
+
+  .emoji-paint__head {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px outset;
+    border-radius: 3px 3px 0 0;
+    background: #aaa;
+    font-weight: bold;
+  }
+
+  .emoji-paint__head:first-letter {
+    text-shadow: var(--label-emoji-text-shadow);
+  }
+
+  .emoji-paint__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .emoji-paint__btn-icon {
+    line-height: 1.1875rem;
+    vertical-align: top;
+  }
+
+  .emoji-paint__btn-icon:first-letter {
+    text-shadow: var(--label-emoji-text-shadow);
+  }
+
+  .emoji-paint__toolbar-top {
+    display: flex;
+  }
+
+  .emoji-paint__toolbar-separator {
+    flex: 0 1 0;
+    margin-block: 0.25rem;
+    margin-inline: 0.5rem;
+  }
+
+  .emoji-paint__toolbar-spacer {
+    flex: 1 1 auto;
+  }
+
+  .emoji-paint__toolbar-top-btn-upload {
+    width: 0;
+    position: absolute;
+    visibility: hidden;
+  }
+
+  .emoji-paint__toolbar-top-label-upload {
+    border: 1px outset #0006;
+    border-radius: 0.25rem;
+    padding: 4px;
+    background-color: buttonface;
+  }
+
+  .emoji-paint__toolbar-top-label-upload:hover {
+    background-color: var(--selection-color);
+  }
+
+  .emoji-paint__toolbar-top-resize input[type='number'] {
+    width: 6ch;
+    text-align: right;
+  }
+
+  .emoji-paint__toolbar-label {
+    margin-inline-end: 0.5rem;
+  }
+
+  .emoji-paint__canvas {
+    flex: 1 1 auto;
+    border: 1px inset;
+    padding: 0.25rem;
+    height: 0;
+    overflow: auto;
+    white-space: pre;
+    background: var(--canvas-background);
+    cursor: crosshair;
+    user-select: none;
+  }
+
+  .emoji-paint__canvas,
+  .emoji-paint__metrics {
+    font-size: 1rem;
+  }
+
+  .emoji-paint__palette {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .emoji-paint__palette-item {
+    margin: 0;
+    border-width: 1px;
+    border-color: transparent;
+    border-radius: 0.25rem;
+    padding: 0.175rem;
+    appearance: none;
+    transition: background-color 250ms ease-out;
+  }
+
+  .emoji-paint__palette-item::before {
+    content: attr(value);
+  }
+
+  .emoji-paint__palette-item:checked {
+    border-color: inherit;
+    background-color: var(--selection-color);
+  }
+
+  .emoji-paint__palette_dropdown {
+    flex: 0 1 0;
+    align-self: stretch;
+  }
+
+  .emoji-paint__palette-selection {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: default;
+  }
+
+  .emoji-paint__palette-editor-input-edit {
+    flex: 1 1 auto;
+    /*
+    NOTE: I don't know exactly why .35rem of all things, but it provides
+    the same spacing between the symbols as the palette selection
+    */
+    letter-spacing: 0.35rem;
+  }
+
+  .emoji-paint__palette-selection-left,
+  .emoji-paint__palette-selection-right {
+    position: relative;
+    border: 1px inset;
+    border-radius: 0.25rem;
+    padding: 0.175rem;
+    background: var(--canvas-background);
+  }
+
+  .emoji-paint__palette-selection-left::before,
+  .emoji-paint__palette-selection-right::before {
+    position: absolute;
+    border-radius: 100%;
+    width: 2.5ch;
+    color: #fff;
+    background-color: #339;
+    font-size: 0.525rem;
+    text-align: center;
+    line-height: 2.5ch;
+    aspect-ratio: 1;
+  }
+
+  .emoji-paint__palette-selection-left::before {
+    content: 'L';
+  }
+
+  .emoji-paint__palette-selection-right::before {
+    content: 'R';
+  }
+
 }
 
-.emoji-paint__container {
-  --canvas-background: #fff;
-  --selection-color: #ffffe0;
-  --label-emoji-text-shadow: 1px 1px 0 #0006;
+/* endregion */
 
-  display: flex;
-  flex-direction: column;
-  border: 1px outset;
-  border-radius: 4px;
-  background: #ccc;
-  height: 100%;
-}
+/* region Overrides */
 
-.emoji-paint__head {
-  padding: 0.5rem 1rem;
-  border-bottom: 1px outset;
-  border-radius: 3px 3px 0 0;
-  background: #aaa;
-  font-weight: bold;
-}
+@layer overrides {
+  .radius--left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 
-.emoji-paint__head:first-letter {
-  text-shadow: var(--label-emoji-text-shadow);
-}
+  .radius--middle {
+    border-radius: 0;
+  }
 
-.emoji-paint__body {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-}
-
-.emoji-paint__icon-btn {
-  border: 1px outset #0006;
-  border-radius: 3px;
-  padding: 2px;
-  line-height: 1.1875rem;
-  text-shadow: var(--label-emoji-text-shadow);
-  vertical-align: top;
-  background-color: buttonface;
-}
-
-.emoji-paint__toolbar-top {
-  display: flex;
-}
-
-.emoji-paint__toolbar-separator {
-  flex: 0 1 0;
-  margin-block: 0.25rem;
-  margin-inline: 0.5rem;
-}
-
-.emoji-paint__toolbar-spacer {
-  flex: 1 1 auto;
-}
-
-.emoji-paint__toolbar-top-btn-upload {
-  width: 0;
-  position: absolute;
-  visibility: hidden;
-}
-
-.emoji-paint__toolbar-top-resize input[type='number'] {
-  width: 6ch;
-  text-align: right;
-}
-
-.emoji-paint__toolbar-label {
-  margin-inline-end: 0.5rem;
-}
-
-.emoji-paint__canvas {
-  flex: 1 1 auto;
-  border: 1px inset;
-  padding: 0.25rem;
-  height: 0;
-  overflow: auto;
-  white-space: pre;
-  background: var(--canvas-background);
-  cursor: crosshair;
-  user-select: none;
-}
-
-.emoji-paint__canvas,
-.emoji-paint__metrics {
-  font-size: 1rem;
-}
-
-.emoji-paint__palette {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.emoji-paint__palette-item {
-  margin: 0;
-  border-radius: 0.25rem;
-  padding: 0.175rem;
-  appearance: none;
-  transition: background-color 250ms ease-out;
-}
-
-.emoji-paint__palette-item::before {
-  content: attr(value);
-}
-
-.emoji-paint__palette-item:checked {
-  background-color: var(--selection-color);
-}
-
-.emoji-paint__palette_dropdown {
-  flex: 0 1 0;
-  align-self: stretch;
-}
-
-.emoji-paint__palette-selection {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  cursor: default;
-}
-
-.emoji-paint__palette-editor-input-edit {
-  flex: 1 1 auto;
-  /*
-  NOTE: I don't know exactly why .35rem of all things, but it provides
-  the same spacing between the symbols as the palette selection
-  */
-  letter-spacing: 0.35rem;
-}
-
-.emoji-paint__palette-selection-left,
-.emoji-paint__palette-selection-right {
-  position: relative;
-  border: 1px inset;
-  border-radius: 0.25rem;
-  padding: 0.175rem;
-  background: var(--canvas-background);
-}
-
-.emoji-paint__palette-selection-left::before,
-.emoji-paint__palette-selection-right::before {
-  position: absolute;
-  border-radius: 100%;
-  width: 2.5ch;
-  color: #fff;
-  background-color: #339;
-  font-size: 0.525rem;
-  text-align: center;
-  line-height: 2.5ch;
-  aspect-ratio: 1;
-}
-
-.emoji-paint__palette-selection-left::before {
-  content: 'L';
-}
-
-.emoji-paint__palette-selection-right::before {
-  content: 'R';
+  .radius--right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
 }
 
 /* endregion */

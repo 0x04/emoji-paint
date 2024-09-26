@@ -31,13 +31,16 @@ export class ToolbarTop extends Toolbar {
     label.classList.add('emoji-paint__toolbar-label')
     label.innerText = 'Size'
 
+    inputWidth.classList.add('radius--left')
     inputWidth.type = inputHeight.type = 'number'
     inputWidth.value = this.paint.width
+    inputHeight.classList.add('radius--middle')
     inputHeight.value = this.paint.height
 
     btnResize.classList.add(
       'emoji-paint__toolbar-top-btn-resize',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon',
+      'radius--right'
     )
     btnResize.title = 'Resize Canvas'
     btnResize.innerText = '📐'
@@ -59,7 +62,7 @@ export class ToolbarTop extends Toolbar {
 
     btnClear.classList.add(
       'emoji-paint__toolbar-top-btn-clear',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon'
     )
     btnClear.title = 'Clear Canvas'
     btnClear.innerText = '💥️'
@@ -75,7 +78,7 @@ export class ToolbarTop extends Toolbar {
 
     btnCopy.classList.add(
       'emoji-paint__toolbar-top-btn-copy',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon'
     )
     btnCopy.title = 'Copy to Clipboard'
     btnCopy.innerText = '📋'
@@ -91,7 +94,8 @@ export class ToolbarTop extends Toolbar {
 
     btnDownload.classList.add(
       'emoji-paint__toolbar-top-btn-download',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon',
+      'radius--left'
     )
     btnDownload.title = 'Download'
     btnDownload.innerText = '⬇️'
@@ -135,8 +139,10 @@ export class ToolbarTop extends Toolbar {
 
     labelUpload.classList.add(
       'emoji-paint__toolbar-top-label-upload',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon',
+      'radius--right'
     )
+    labelUpload.title = 'Upload'
     labelUpload.append('⬆️', btnUpload)
 
     this.attachItem('btnUpload', labelUpload)
