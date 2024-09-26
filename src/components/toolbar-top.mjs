@@ -10,7 +10,9 @@ export class ToolbarTop extends Toolbar {
 
   setup() {
     this.setupBtnCopy()
+    this.attachSeparator()
     this.setupBtnDownload()
+    this.setupBtnUpload()
     this.attachSpacer()
     this.setupResize()
     this.attachSeparator()
@@ -108,5 +110,35 @@ export class ToolbarTop extends Toolbar {
     })
 
     this.attachItem('btnDownload', btnDownload)
+  }
+
+  setupBtnUpload() {
+    const labelUpload = document.createElement('label')
+    const btnUpload = document.createElement('input')
+
+    btnUpload.classList.add('emoji-paint__toolbar-top-btn-upload')
+    btnUpload.type = 'file'
+    btnUpload.title = 'Upload'
+    btnUpload.addEventListener('change', () => {
+      const [ file ] = btnUpload.files
+      const fileReader = new FileReader()
+
+      fileReader.addEventListener('load', () => {
+        const { data } = this.paint.canvas
+        const { canvas } = this.paint
+
+        data.setFromString(fileReader.result)
+        canvas.setup(data.width, data.height)
+      })
+      fileReader.readAsText(file)
+    })
+
+    labelUpload.classList.add(
+      'emoji-paint__toolbar-top-label-upload',
+      'emoji-paint__icon-btn'
+    )
+    labelUpload.append('⬆️', btnUpload)
+
+    this.attachItem('btnUpload', labelUpload)
   }
 }

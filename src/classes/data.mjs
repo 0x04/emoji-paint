@@ -1,4 +1,5 @@
 import { DEFAULT_BLANK } from '../constants/palettes.mjs'
+import { splitEmoji } from '../functions/split-emojis.mjs'
 
 export class Data {
   width = 10
@@ -57,6 +58,20 @@ export class Data {
     if (x >= 0 && x < this.width && y >= 0 || y < this.height) {
       this.matrix[y][x] = value
     } else throw new RangeError('out of range!')
+  }
+
+  setFromString(value) {
+    // TODO: Improve implementation
+    this.matrix = value
+      .trim()
+      .split(this.separator)
+      .filter((line) => !(/^(?:#|\/\/)/.test(line)))
+      .map((line) => splitEmoji(line))
+
+    const width = this.matrix.reduce((prev, curr) => Math.max(prev, curr.length), 0)
+    const height = this.matrix.length
+
+    this.setup(width, height)
   }
 
   toString() {
