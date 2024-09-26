@@ -32,7 +32,8 @@ export class PaletteEditor {
 
     btnEdit.classList.add(
       'emoji-paint__palette-editor-btn-edit',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon',
+      'radius--left'
     )
     btnEdit.title = 'Edit palette'
     btnEdit.textContent = '✏️'
@@ -40,7 +41,8 @@ export class PaletteEditor {
 
     btnReset.classList.add(
       'emoji-paint__palette-editor-btn-reset',
-      'emoji-paint__icon-btn'
+      'emoji-paint__btn-icon',
+      'radius--right'
     )
     btnReset.title = 'Reset palette'
     btnReset.textContent = '🧹'
