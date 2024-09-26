@@ -1,5 +1,6 @@
 import { splitEmoji } from '../functions/split-emojis.mjs'
 import { DEFAULT_PALETTES } from '../constants/palettes.mjs'
+import { isEmoji } from '../functions/is-emoji.mjs'
 
 export class PaletteEditor {
   elements = {
@@ -75,10 +76,6 @@ export class PaletteEditor {
     this.dispatchChange()
   }
 
-  isEmoji(character) {
-    return /(?!\d)\p{Emoji}/u.test(character)
-  }
-
   dispatchChange(value = this.elements.inputEdit.value) {
     const palette = {
       name: this.palette.paletteCurrent.name,
@@ -119,7 +116,7 @@ export class PaletteEditor {
       default:
         const value = String.fromCharCode(event.charCode)
 
-        if (!this.isEmoji(value)) {
+        if (!isEmoji(value)) {
           event.preventDefault()
           alert('This not a valid emoji character!')
         }

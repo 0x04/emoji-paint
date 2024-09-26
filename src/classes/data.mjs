@@ -65,8 +65,8 @@ export class Data {
     this.matrix = value
       .trim()
       .split(this.separator)
-      .filter((line) => !(/^(?:#|\/\/)/.test(line)))
       .map((line) => splitEmoji(line))
+      .filter((line) => line.length > 0)
 
     const width = this.matrix.reduce((prev, curr) => Math.max(prev, curr.length), 0)
     const height = this.matrix.length
