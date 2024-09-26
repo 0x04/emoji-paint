@@ -13,16 +13,7 @@ export class MouseGrid {
     this.cellRect = cellRect
   }
 
-  isValidCoordinate(x, y) {
-    return (x >= 0 && x <= this.gridRect.width
-      && y >= 0 && y <= this.gridRect.height)
-  }
-
   getPointFromCoordinate(x, y) {
-    if (!this.isValidCoordinate(x, y)) {
-      return null
-    }
-
     return new Point(
       Math.floor(x / this.cellRect.width),
       Math.floor(y / this.cellRect.height)
