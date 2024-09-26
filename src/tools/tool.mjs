@@ -1,3 +1,5 @@
+import { Point } from '../classes/point.mjs'
+
 export class Tool {
   canvas = null
   palette = null
@@ -32,14 +34,20 @@ export class Tool {
   apply(event) {
     const point = this.canvas.mouseGrid.getPointFromEvent(event)
 
-    if (!point || point.x > this.canvas.width - 1 || point.y > this.canvas.height - 1) {
+    this.prevPoint = this.point
+
+    // Normalize coordinates outside the grid
+    if (point.x < 0 || point.x >= this.canvas.width || point.y < 0 || point.y >= this.canvas.height) {
+      this.point = new Point(
+        Math.max(0, Math.min(point.x, this.canvas.width - 1)),
+        Math.max(0, Math.min(point.y, this.canvas.height - 1))
+      )
       return false
     }
 
-    this.prevPoint = this.point
     this.point = point
 
-    return !!this.point
+    return true
     // Implement in child class
   }
 
