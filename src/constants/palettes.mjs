@@ -1,4 +1,4 @@
-export const DEFAULT_BLANK = '⬜'
+
 export const DEFAULT_PALETTES = [
   {
     name: 'Squares',

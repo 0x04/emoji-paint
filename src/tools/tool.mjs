@@ -1,46 +1,45 @@
 import { Point } from '../classes/point.mjs'
 
 export class Tool {
-  canvas = null
-  palette = null
+  paint = null
   button = 0
   isMouseDown = false
   point = null
   prevPoint = null
 
-  constructor(canvas, palette) {
-    this.canvas = canvas
-    this.palette = palette
-
+  constructor(paint) {
+    this.paint = paint
     this.onMouseDown = this.onMouseDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.onMouseUp = this.onMouseUp.bind(this)
   }
 
   activate() {
-    const { element } = this.canvas
+    const { element } = this.paint.canvas
     element.addEventListener('mousedown', this.onMouseDown)
     element.addEventListener('mousemove', this.onMouseMove)
     window.addEventListener('mouseup', this.onMouseUp)
   }
 
   deactivate() {
-    const { element } = this.canvas
+    const { element } = this.paint.canvas
     element.removeEventListener('mousedown', this.onMouseDown)
     element.removeEventListener('mousemove', this.onMouseMove)
     window.removeEventListener('mouseup', this.onMouseUp)
   }
 
   apply(event) {
-    const point = this.canvas.mouseGrid.getPointFromEvent(event)
+    const { canvas: canvasStore } = this.paint.stores
+    const { width, height } = canvasStore.getDimensions()
+    const point = this.paint.canvas.mouseGrid.getPointFromEvent(event)
 
     this.prevPoint = this.point
 
     // Normalize coordinates outside the grid
-    if (point.x < 0 || point.x >= this.canvas.width || point.y < 0 || point.y >= this.canvas.height) {
+    if (point.x < 0 || point.x >= width || point.y < 0 || point.y >= height) {
       this.point = new Point(
-        Math.max(0, Math.min(point.x, this.canvas.width - 1)),
-        Math.max(0, Math.min(point.y, this.canvas.height - 1))
+        Math.max(0, Math.min(point.x, width - 1)),
+        Math.max(0, Math.min(point.y, height - 1))
       )
       return false
     }
