@@ -1,4 +1,4 @@
-import { DEFAULT_BLANK } from '../constants/palettes.mjs'
+import { DEFAULT_BLANK } from '../constants/globals.mjs'
 import { Rectangle } from '../classes/rectangle.mjs'
 
 export class Metrics {

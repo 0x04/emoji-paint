@@ -1,16 +1,17 @@
-import { DEFAULT_BLANK } from '../constants/palettes.mjs'
+import { DEFAULT_BLANK } from '../constants/globals.mjs'
 
 export class PaletteSelection {
-  value = { left: DEFAULT_BLANK, right: DEFAULT_BLANK }
+  palette = null
   elements = {
     container: null,
     selectionLeft: null,
     selectionRight: null
   }
 
-  constructor() {
-    this.onPaletteSelectionChange = this.onPaletteSelectionChange.bind(this)
+  constructor(palette) {
+    this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)
 
+    const { store: paletteStore } = this.palette = palette
     const container = this.elements.container = document.createElement('div')
     const selectionLeft = this.elements.selectionLeft = document.createElement('div')
     const selectionRight = this.elements.selectionRight = document.createElement('div')
@@ -27,26 +28,13 @@ export class PaletteSelection {
 
     container.append(selectionLeft, selectionRight)
 
-    document.addEventListener(
-      'paletteSelectionChange',
-      this.onPaletteSelectionChange
-    )
+    paletteStore.subscribe(this.onPaletteStoreChange)
   }
 
-  onPaletteSelectionChange(event) {
+  onPaletteStoreChange(state, store) {
     const { selectionLeft, selectionRight } = this.elements
-    const { selected, mouseButton } = event.detail
 
-    switch (mouseButton) {
-      default:
-        this.value.left = selected
-        selectionLeft.textContent = selected
-        break
-
-      case 2:
-        this.value.right = selected
-        selectionRight.textContent = selected
-        break
-    }
+    selectionLeft.textContent = store.getSelectedEntry(0)
+    selectionRight.textContent = store.getSelectedEntry(2)
   }
 }
