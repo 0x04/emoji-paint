@@ -1,5 +1,11 @@
 export class Store {
+  /**
+   * @type {Object}
+   */
   state = null
+  /**
+   * @type {Array}
+   */
   listeners = null
 
   constructor(initialState = {}) {

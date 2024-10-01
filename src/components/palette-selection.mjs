@@ -1,12 +1,15 @@
 import { DEFAULT_BLANK } from '../constants/globals.mjs'
 
 export class PaletteSelection {
-  palette = null
   elements = {
     container: null,
     selectionLeft: null,
     selectionRight: null
   }
+  /**
+   * @type {Palette}
+   */
+  palette = null
 
   constructor(palette) {
     this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)

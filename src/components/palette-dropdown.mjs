@@ -1,6 +1,7 @@
-import { DEFAULT_PALETTES } from '../constants/palettes.mjs'
-
 export class PaletteDropdown {
+  /**
+   * @type {Palette}
+   */
   palette = null
   /**
    * @type {HTMLSelectElement}

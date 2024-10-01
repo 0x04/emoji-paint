@@ -3,9 +3,21 @@ import { Rectangle } from '../classes/rectangle.mjs'
 import { MouseGrid } from '../classes/mouse-grid.mjs'
 
 export class Canvas {
-  metrics = null
+  /**
+   * @type {HTMLDivElement}
+   */
   element = null
+  /**
+   * @type {Metrics}
+   */
+  metrics = null
+  /**
+   * @type {Rectangle}
+   */
   rectangle = null
+  /**
+   * @type {Rectangle}
+   */
   mouseGrid = null
 
   constructor() {
