@@ -44,7 +44,7 @@ export class PaletteStore extends PersistentStore {
     return this.state.palettes[this.state.selectedPaletteIndex]
   }
 
-  getSelectedPaletteIndex(newIndex) {
+  getSelectedPaletteIndex() {
     return this.state.selectedPaletteIndex
   }
 

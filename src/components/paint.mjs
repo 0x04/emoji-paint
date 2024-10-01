@@ -5,10 +5,22 @@ import { ToolbarTop } from './toolbar-top.mjs'
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 
 export class Paint {
-  storage = null
+  /**
+   * @type {Canvas}
+   */
   canvas = null
+  /**
+   * @type {Palette}
+   */
   palette = null
+  /**
+   * @type {Tool}
+   */
   tool = null
+  /**
+   * @type {Object}
+   * @property top {ToolbarTop}
+   */
   toolbars = { top: null }
   elements = { container: null, head: null, body: null }
   width = 10

@@ -1,7 +1,13 @@
 import { Store } from './store.mjs'
 
 export class PersistentStore extends Store {
+  /**
+   * @type {string}
+   */
   storageKey = null
+  /**
+   * @type {Set<string>}
+   */
   stateChanges = new Set()
 
   constructor(initialState, storageKey) {

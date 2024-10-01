@@ -2,7 +2,13 @@ import { DEFAULT_BLANK } from '../constants/globals.mjs'
 import { Rectangle } from '../classes/rectangle.mjs'
 
 export class Metrics {
+  /**
+   * @type {Rectangle}
+   */
   rectangle = null
+  /**
+   * @type {HTMLDivElement}
+   */
   element = null
 
   constructor(character = DEFAULT_BLANK) {

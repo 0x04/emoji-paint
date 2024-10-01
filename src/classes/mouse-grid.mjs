@@ -1,7 +1,13 @@
 import { Point } from './point.mjs'
 
 export class MouseGrid {
+  /**
+   * @type {Rectangle}
+   */
   gridRect = null
+  /**
+   * @type {Rectangle}
+   */
   cellRect = null
 
   constructor(gridRect = null, cellRect = null) {

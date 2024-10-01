@@ -61,13 +61,13 @@ export class CanvasStore extends Store {
       const oldLine = oldMatrix.at(lineIndex)
 
       if (!oldLine) {
-        newMatrix[lineIndex] = new Array(width).fill(DEFAULT_BLANK)
+        newMatrix[lineIndex] = new Array(width).fill(blank)
         continue
       }
 
       if (oldLine.length < width) {
         newMatrix[lineIndex] = oldLine
-          .concat(new Array(width - oldLine.length).fill(DEFAULT_BLANK))
+          .concat(new Array(width - oldLine.length).fill(blank))
         continue
       }
 
