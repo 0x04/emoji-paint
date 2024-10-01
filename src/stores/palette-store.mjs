@@ -53,7 +53,7 @@ export class PaletteStore extends PersistentStore {
       throw new RangeError(`Palette with index "${newIndex}" doest not exist!`)
     }
 
-    this.setState({ selectedPalette: newIndex })
+    this.setState({ selectedPaletteIndex: newIndex })
   }
 
   getSelectedEntry(button = 0) {
