@@ -36,20 +36,7 @@ export class PaletteDropdown {
     this.element.append(...options)
   }
 
-  // dispatchChange() {
-  //   const option = this.element.selectedOptions.item(0)
-  //   const detail = { paletteName: option.value }
-  //   const event = new CustomEvent('paletteDropdownChange', {
-  //     bubbles: true,
-  //     cancelable: false,
-  //     detail
-  //   })
-  //
-  //   this.element.dispatchEvent(event)
-  // }
-
   onChange() {
-    // this.dispatchChange()
     const { store: paletteStore } = this.palette
 
     paletteStore.setSelectedPaletteIndex(this.element.selectedIndex)
