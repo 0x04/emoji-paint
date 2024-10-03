@@ -53,9 +53,9 @@ export class ToolbarTop extends Toolbar {
 
     inputWidth.classList.add('radius--left')
     inputWidth.type = inputHeight.type = 'number'
-    inputWidth.value = this.paint.width
+    inputWidth.value = this.paint.width.toString(10)
     inputHeight.classList.add('radius--middle')
-    inputHeight.value = this.paint.height
+    inputHeight.value = this.paint.height.toString(10)
 
     btnResize.classList.add(
       'emoji-paint__toolbar-top-btn-resize',

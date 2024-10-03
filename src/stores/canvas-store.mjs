@@ -67,7 +67,7 @@ export class CanvasStore extends Store {
 
       if (oldLine.length < width) {
         newMatrix[lineIndex] = oldLine
-          .concat(new Array(width - oldLine.length).fill(blank))
+          .concat(...blank.repeat(width - oldLine.length))
         continue
       }
 
