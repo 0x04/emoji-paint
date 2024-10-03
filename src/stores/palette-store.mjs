@@ -10,10 +10,25 @@ export class PaletteStore extends PersistentStore {
     selectedEntries: { 0: null, 1: null, 2: null }
   }
 
+  paletteChanges = new Set()
+
   constructor() {
     super(PaletteStore.initialState, `${STORE_STORAGE_KEY}.palette`)
     this.state.selectedEntries[0] = this.getSelectedPalette().entries.at(0)
     this.state.selectedEntries[2] = DEFAULT_BLANK
+  }
+
+  write() {
+    const newPalettes = this.state.palettes
+      .filter((palette, index) => this.paletteChanges.has(index))
+      .filter((palette) => PaletteStore.initialState.palettes.findIndex(
+        (defaultPalette) => defaultPalette.entries.length === palette.entries.length
+          && defaultPalette.entries.every((entry, index) => entry === palette.entries[index])) < 0
+      )
+
+    this.stateChanges.delete('palettes')
+
+    super.write({ ...this.state, palettes: newPalettes })
   }
 
   getPalettes() {
@@ -21,9 +36,9 @@ export class PaletteStore extends PersistentStore {
   }
 
   replacePalette(newPalette) {
-    const paletteIndex = this.state.palettes.find((palette => palette.name === newPalette.name))
+    const paletteIndex = this.state.palettes.findLastIndex((palette) => palette.name === newPalette.name)
 
-    if (paletteIndex > 0) {
+    if (paletteIndex < 0) {
       throw new RangeError(`Palette '${newPalette.name}' not found!`)
     }
 
@@ -31,6 +46,7 @@ export class PaletteStore extends PersistentStore {
 
     newPalettes.splice(paletteIndex, 1, newPalette)
 
+    this.paletteChanges.add(paletteIndex)
     this.setState({ palettes: newPalettes })
   }
 

@@ -16,6 +16,8 @@ export class PaletteDropdown {
     this.element = document.createElement('select')
     this.element.classList.add('emoji-paint__palette_dropdown')
     this.element.addEventListener('change', this.onChange)
+
+    this.setup()
   }
 
   setup() {
@@ -34,11 +36,13 @@ export class PaletteDropdown {
     })
 
     this.element.append(...options)
+    this.element.selectedIndex = paletteStore.getSelectedPaletteIndex()
   }
 
   onChange() {
     const { store: paletteStore } = this.palette
 
     paletteStore.setSelectedPaletteIndex(this.element.selectedIndex)
+    paletteStore.write()
   }
 }

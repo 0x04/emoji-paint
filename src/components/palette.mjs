@@ -32,10 +32,7 @@ export class Palette {
 
   constructor(paint) {
     this.onMouseDown = this.onMouseDown.bind(this)
-    this.onDropdownChange = this.onDropdownChange.bind(this)
     this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)
-
-    document.addEventListener('paletteDropdownChange', this.onDropdownChange)
 
     this.paint = paint
 
@@ -49,6 +46,8 @@ export class Palette {
     items.addEventListener('mousedown', this.onMouseDown)
     items.addEventListener('contextmenu', (event) => event.preventDefault())
 
+    paletteStore.read()
+
     this.selection = new PaletteSelection(this)
     this.dropdown = new PaletteDropdown(this)
     this.editor = new PaletteEditor(this)
@@ -60,10 +59,9 @@ export class Palette {
       items
     )
 
-    paletteStore.read()
     paletteStore.subscribe(this.onPaletteStoreChange)
 
-    this.dropdown.setup(paletteStore.getSelectedPalette())
+    this.setup()
   }
 
   setup() {
@@ -108,11 +106,6 @@ export class Palette {
       parseInt(event.target.dataset.index),
       event.button
     )
-  }
-
-  onDropdownChange(event) {
-    this.select(event.detail.index)
-    this.setup()
   }
 
   onPaletteStoreChange() {
