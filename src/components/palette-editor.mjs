@@ -72,10 +72,10 @@ export class PaletteEditor {
 
     inputEdit.replaceWith(items)
 
-    this.dispatchChange()
+    this.apply()
   }
 
-  dispatchChange(value = this.elements.inputEdit.value) {
+  apply(value = this.elements.inputEdit.value) {
     const { store: paletteStore } = this.palette
     const newPalette = {
       name: paletteStore.getSelectedPalette().name,
@@ -83,6 +83,7 @@ export class PaletteEditor {
     }
 
     paletteStore.replacePalette(newPalette)
+    paletteStore.write()
   }
 
   onBtnEditClick() {
@@ -93,6 +94,7 @@ export class PaletteEditor {
     const { store: paletteStore } = this.palette
 
     paletteStore.resetPalette()
+    paletteStore.write()
   }
 
   onInputEditKeyPress(event) {

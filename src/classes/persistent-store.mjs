@@ -30,19 +30,22 @@ export class PersistentStore extends Store {
 
   read() {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
-    const storageData = JSON.parse(localStorage.getItem(storageKey))
+    const storage = JSON.parse(localStorage.getItem(storageKey))
 
-    if (!storageData || !storageData[stateKey]) {
+    if (!storage || !storage[stateKey]) {
       return
     }
 
-    this.setState(storageData[stateKey], false)
+    this.setState(this.merge(storage[stateKey]), false)
   }
 
-  write() {
+  write(newStoredState = {}) {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
-    const newStoredState = {}
     const storageData = JSON.parse(localStorage.getItem(storageKey)) ?? {}
+
+    if (Object.keys(newStoredState).length === 0 && !this.stateChanges.size) {
+      return
+    }
 
     for (const statePropertyKey of this.stateChanges) {
       newStoredState[statePropertyKey] = this.state[statePropertyKey]
@@ -51,5 +54,35 @@ export class PersistentStore extends Store {
     storageData[stateKey] = newStoredState
 
     localStorage.setItem(storageKey, JSON.stringify(storageData))
+
+    this.stateChanges = new Set()
+  }
+
+  merge(storageState) {
+    const mergedState = structuredClone(this.state)
+
+    for (const key in mergedState) {
+      if (!(key in storageState)) {
+        continue
+      }
+
+      switch (Object.getPrototypeOf(mergedState[key]).constructor) {
+        case Object:
+          mergedState[key] = { ...mergedState[key], ...storageState[key] }
+          break
+
+        case Array:
+          mergedState[key] = mergedState[key].map(
+            (mergedItem) => storageState[key].find(storageState => mergedItem.name === storageState.name) || mergedItem
+          )
+          break
+
+        default:
+          mergedState[key] = storageState[key]
+          break
+      }
+    }
+
+    return mergedState
   }
 }
