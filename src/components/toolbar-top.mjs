@@ -2,7 +2,14 @@ import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
 
 export class ToolbarTop extends Toolbar {
-  elements = {}
+  elements = {
+    resizeInputWidth: null,
+    resizeInputHeight: null
+  }
+  /**
+   * @type {Paint}
+   */
+  paint = null
 
   constructor(paint) {
     super('emoji-paint__toolbar-top')
