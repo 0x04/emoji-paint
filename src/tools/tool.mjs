@@ -67,6 +67,10 @@ export class Tool {
       this.isMouseDown = false
       this.point = null
       this.prevPoint = null
+
+      const { canvas: canvasStore } = this.paint.stores
+
+      canvasStore.write()
     }
   }
 }

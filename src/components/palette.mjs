@@ -99,6 +99,7 @@ export class Palette {
     item.checked = true
 
     this.store.setSelectedEntry(mouseButton, this.store.getSelectedPalette().entries.at(index))
+    this.store.write()
   }
 
   onMouseDown(event) {

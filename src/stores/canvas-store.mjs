@@ -1,9 +1,14 @@
-import { Store } from '../classes/store.mjs'
-
-import { DEFAULT_BLANK, DEFAULT_HEIGHT, DEFAULT_SEPARATOR, DEFAULT_WIDTH } from '../constants/globals.mjs'
+import {
+  DEFAULT_BLANK,
+  DEFAULT_HEIGHT,
+  DEFAULT_SEPARATOR,
+  DEFAULT_WIDTH,
+  STORE_STORAGE_KEY
+} from '../constants/globals.mjs'
 import { splitEmoji } from '../functions/split-emojis.mjs'
+import { PersistentStore } from '../classes/persistent-store.mjs'
 
-export class CanvasStore extends Store {
+export class CanvasStore extends PersistentStore {
   static initialState = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
@@ -11,7 +16,7 @@ export class CanvasStore extends Store {
   }
 
   constructor() {
-    super(CanvasStore.initialState)
+    super(CanvasStore.initialState, `${STORE_STORAGE_KEY}.canvas`)
     this.state.matrix = this.create()
   }
 
