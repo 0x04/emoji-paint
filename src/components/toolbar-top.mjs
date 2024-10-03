@@ -30,12 +30,12 @@ export class ToolbarTop extends Toolbar {
 
   setup() {
     this.setupBtnCopy()
-    this.attachSeparator()
+    this.appendSeparator()
     this.setupBtnDownload()
     this.setupBtnUpload()
-    this.attachSpacer()
+    this.appendSpacer()
     this.setupResize()
-    this.attachSeparator()
+    this.appendSeparator()
     this.setupBtnClear()
   }
 
@@ -76,7 +76,7 @@ export class ToolbarTop extends Toolbar {
 
     containerResize.append(label, inputWidth, inputHeight, btnResize)
 
-    this.attachItem('resize', containerResize)
+    this.appendItem('resize', containerResize)
 
     this.elements.resizeInputWidth = inputWidth
     this.elements.resizeInputHeight = inputHeight
@@ -97,7 +97,7 @@ export class ToolbarTop extends Toolbar {
       canvasStore.clear()
     })
 
-    this.attachItem('btnCopy', btnClear)
+    this.appendItem('btnCopy', btnClear)
   }
 
   setupBtnCopy() {
@@ -115,7 +115,7 @@ export class ToolbarTop extends Toolbar {
       copyToClipboard(canvasStore.getString())
     })
 
-    this.attachItem('btnCopy', btnCopy)
+    this.appendItem('btnCopy', btnCopy)
   }
 
   setupBtnDownload() {
@@ -142,7 +142,7 @@ export class ToolbarTop extends Toolbar {
       anchor.remove()
     })
 
-    this.attachItem('btnDownload', btnDownload)
+    this.appendItem('btnDownload', btnDownload)
   }
 
   setupBtnUpload() {
@@ -172,6 +172,6 @@ export class ToolbarTop extends Toolbar {
     labelUpload.title = 'Upload'
     labelUpload.append('⬆️', btnUpload)
 
-    this.attachItem('btnUpload', labelUpload)
+    this.appendItem('btnUpload', labelUpload)
   }
 }

@@ -9,24 +9,24 @@ export class Toolbar {
     this.element.classList.add('component-toolbar', className)
   }
 
-  attachItem(identifier, element) {
+  appendItem(identifier, element) {
     this.items[identifier] = element
     this.element.append(element)
   }
 
-  attachSeparator() {
+  appendSeparator() {
     const separator = document.createElement('hr')
 
     separator.classList.add('emoji-paint__toolbar-separator')
 
-    this.attachItem(`separator-${this.countSeparator++}`, separator)
+    this.appendItem(`separator-${this.countSeparator++}`, separator)
   }
 
-  attachSpacer() {
+  appendSpacer() {
     const spacer = document.createElement('div')
 
     spacer.classList.add('emoji-paint__toolbar-spacer')
 
-    this.attachItem(`spacer-${this.countSpacer++}`, spacer)
+    this.appendItem(`spacer-${this.countSpacer++}`, spacer)
   }
 }
