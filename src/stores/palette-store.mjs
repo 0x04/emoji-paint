@@ -1,10 +1,11 @@
 import { DEFAULT_PALETTES } from '../constants/palettes.mjs'
 import { PersistentStore } from '../classes/persistent-store.mjs'
 import { DEFAULT_BLANK, STORE_STORAGE_KEY } from '../constants/globals.mjs'
+import { Collection } from '../classes/collection.js'
 
 export class PaletteStore extends PersistentStore {
   static initialState = {
-    palettes: structuredClone(DEFAULT_PALETTES),
+    palettes: new Collection('name', DEFAULT_PALETTES),
     selectedPaletteIndex: 0,
     // NOTE: 0 = mouse left, 1 = mouse middle, 2 = mouse right
     selectedEntries: { 0: null, 1: null, 2: null }

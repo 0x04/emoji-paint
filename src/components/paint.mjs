@@ -2,7 +2,6 @@ import { Canvas } from './canvas.mjs'
 import { Palette } from './palette.mjs'
 import { DrawTool } from '../tools/draw-tool.mjs'
 import { ToolbarTop } from './toolbar-top.mjs'
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 
 export class Paint {
   /**
@@ -34,6 +33,8 @@ export class Paint {
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
 
     const { canvas: canvasStore } = this.stores = stores
+
+    canvasStore.read()
 
     this.canvas = new Canvas()
     this.palette = new Palette(this)
@@ -67,10 +68,7 @@ export class Paint {
     canvasStore.subscribe(this.onCanvasStoreChange)
   }
 
-  setup(width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT) {
-    const { canvas: canvasStore } = this.stores
-
-    canvasStore.setDimensions(width, height)
+  setup() {
     this.palette.setup()
     this.tool.activate()
   }

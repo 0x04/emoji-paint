@@ -68,11 +68,11 @@ export class ToolbarTop extends Toolbar {
       const { canvas: canvasStore } = this.paint.stores
 
       canvasStore.setDimensions(
-          parseInt(inputWidth.value),
-          parseInt(inputHeight.value)
-        )
-      }
-    )
+        parseInt(inputWidth.value),
+        parseInt(inputHeight.value)
+      )
+      canvasStore.write()
+    })
 
     containerResize.append(label, inputWidth, inputHeight, btnResize)
 
@@ -95,6 +95,7 @@ export class ToolbarTop extends Toolbar {
       const { canvas: canvasStore } = this.paint.stores
 
       canvasStore.clear()
+      canvasStore.write()
     })
 
     this.appendItem('btnCopy', btnClear)
@@ -160,6 +161,7 @@ export class ToolbarTop extends Toolbar {
         const { canvas: canvasStore } = this.paint.stores
 
         canvasStore.setString(fileReader.result)
+        canvasStore.write()
       })
       fileReader.readAsText(file)
     })

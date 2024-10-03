@@ -1,4 +1,5 @@
 import { Store } from './store.mjs'
+import { Collection } from './collection.js'
 
 export class PersistentStore extends Store {
   /**
@@ -15,12 +16,8 @@ export class PersistentStore extends Store {
     this.storageKey = storageKey
   }
 
-  setState(newState, setChanges = true) {
+  setState(newState) {
     super.setState(newState)
-
-    if (!setChanges) {
-      return
-    }
 
     this.stateChanges = new Set([
       ...this.stateChanges,
@@ -36,10 +33,10 @@ export class PersistentStore extends Store {
       return
     }
 
-    this.setState(this.merge(storage[stateKey]), false)
+    this.setState(this.merge(storage[stateKey]))
   }
 
-  write(newStoredState = {}) {
+  write(newStoredState = structuredClone(this.state)) {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
     const storageData = JSON.parse(localStorage.getItem(storageKey)) ?? {}
 
@@ -59,7 +56,7 @@ export class PersistentStore extends Store {
   }
 
   merge(storageState) {
-    const mergedState = structuredClone(this.state)
+    const mergedState = this.clone(this.state)
 
     for (const key in mergedState) {
       if (!(key in storageState)) {
@@ -71,10 +68,8 @@ export class PersistentStore extends Store {
           mergedState[key] = { ...mergedState[key], ...storageState[key] }
           break
 
-        case Array:
-          mergedState[key] = mergedState[key].map(
-            (mergedItem) => storageState[key].find(storageState => mergedItem.name === storageState.name) || mergedItem
-          )
+        case Collection:
+          mergedState[key].merge(storageState[key])
           break
 
         default:
@@ -84,5 +79,29 @@ export class PersistentStore extends Store {
     }
 
     return mergedState
+  }
+
+  clone() {
+    const clonedState = structuredClone(this.state)
+    const initialState = this.constructor.initialState
+
+    // Restore right data type after `structuredClone(…)`
+    for (const key in clonedState) {
+      if (key in initialState && initialState[key]) {
+        const initialEntry = initialState[key]
+        const initialEntryClass = Object.getPrototypeOf(initialEntry).constructor
+
+        switch (initialEntryClass) {
+          case Collection:
+            clonedState[key] = new Collection(
+              initialEntry.identifier,
+              clonedState[key]
+            )
+            break
+        }
+      }
+    }
+
+    return clonedState
   }
 }
