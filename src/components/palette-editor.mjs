@@ -17,12 +17,9 @@ export class PaletteEditor {
     this.onBtnResetClick = this.onBtnResetClick.bind(this)
     this.onInputEditBlur = this.onInputEditBlur.bind(this)
     this.onInputEditKeyPress = this.onInputEditKeyPress.bind(this)
-    this.onPaletteChange = this.onPaletteChange.bind(this)
+    this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)
 
-    document.addEventListener('paletteDropdownChange', this.onPaletteChange)
-
-    this.palette = palette
-
+    const { store: paletteStore } = this.palette = palette
     const container = this.elements.container = document.createElement('div')
     const btnEdit = this.elements.btnEdit = document.createElement('button')
     const btnReset = this.elements.btnReset = document.createElement('button')
@@ -54,7 +51,7 @@ export class PaletteEditor {
 
     container.append(btnEdit, btnReset)
 
-    this.onPaletteChange()
+    paletteStore.subscribe(this.onPaletteStoreChange)
   }
 
   enable() {
@@ -75,30 +72,18 @@ export class PaletteEditor {
 
     inputEdit.replaceWith(items)
 
-    this.dispatchChange()
+    this.apply()
   }
 
-  dispatchChange(value = this.elements.inputEdit.value) {
-    const palette = {
-      name: this.palette.paletteCurrent.name,
+  apply(value = this.elements.inputEdit.value) {
+    const { store: paletteStore } = this.palette
+    const newPalette = {
+      name: paletteStore.getSelectedPalette().name,
       entries: [ ...new Set(splitEmoji(value)) ]
     }
-    const valueNew = palette.entries.join('')
-    const changed = (this.valueCurrent !== valueNew)
 
-    if (!changed) {
-      return
-    }
-
-    const detail = { palette }
-    const event = new CustomEvent(
-      'paletteEditorChange',
-      { detail, bubbles: true, cancelable: false }
-    )
-
-    this.valueCurrent = valueNew
-    this.elements.btnReset.disabled = false
-    this.elements.container.dispatchEvent(event)
+    paletteStore.replacePalette(newPalette)
+    paletteStore.write()
   }
 
   onBtnEditClick() {
@@ -106,11 +91,10 @@ export class PaletteEditor {
   }
 
   onBtnResetClick() {
-    const paletteName = this.palette.paletteCurrent.name
-    const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteName)
+    const { store: paletteStore } = this.palette
 
-    this.dispatchChange(paletteDefault.entries.join(''))
-    this.elements.btnReset.disabled = true
+    paletteStore.resetPalette()
+    paletteStore.write()
   }
 
   onInputEditKeyPress(event) {
@@ -134,16 +118,17 @@ export class PaletteEditor {
     this.disable()
   }
 
-  onPaletteChange() {
-    const paletteCurrent = this.palette.paletteCurrent
-    const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === paletteCurrent.name)
+  onPaletteStoreChange() {
+    const { store: paletteStore } = this.palette
+    const currentPalette = paletteStore.getSelectedPalette()
+    const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === currentPalette.name)
 
     this.elements.btnReset.disabled = (!paletteDefault)
       || (
-        paletteCurrent.entries.length === paletteDefault.entries.length
-        && paletteCurrent.entries.every((entry, index) => entry === paletteDefault.entries.at(index))
+        currentPalette.entries.length === paletteDefault.entries.length
+        && currentPalette.entries.every((entry, index) => entry === paletteDefault.entries.at(index))
       )
 
-    this.valueCurrent = paletteCurrent.entries.join('')
+    this.valueCurrent = currentPalette.entries.join('')
   }
 }

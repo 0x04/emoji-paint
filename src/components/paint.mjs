@@ -1,24 +1,43 @@
-import { DataStorage } from '../classes/data-storage.mjs'
 import { Canvas } from './canvas.mjs'
 import { Palette } from './palette.mjs'
 import { DrawTool } from '../tools/draw-tool.mjs'
 import { ToolbarTop } from './toolbar-top.mjs'
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 
 export class Paint {
-  storage = null
+  /**
+   * @type {Canvas}
+   */
   canvas = null
+  /**
+   * @type {Palette}
+   */
   palette = null
+  /**
+   * @type {Tool}
+   */
   tool = null
+  /**
+   * @type {Object}
+   * @property top {ToolbarTop}
+   */
   toolbars = { top: null }
   elements = { container: null, head: null, body: null }
   width = 10
   height = 10
 
-  constructor(element = document.createElement('div')) {
-    this.storage = new DataStorage()
+  constructor(element = document.createElement('div'), stores) {
+    if (!stores || !stores.canvas) {
+      throw new Error('Argument `stores` must be defined!')
+    }
+
+    this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
+
+    const { canvas: canvasStore } = this.stores = stores
+
     this.canvas = new Canvas()
-    this.palette = new Palette(this.storage)
-    this.tool = new DrawTool(this.canvas, this.palette)
+    this.palette = new Palette(this)
+    this.tool = new DrawTool(this)
     this.toolbars.top = new ToolbarTop(this)
 
     const { elements } = this
@@ -44,14 +63,19 @@ export class Paint {
     if (!this.elements.container.parentElement) {
       document.body.append(this.elements.container)
     }
+
+    canvasStore.subscribe(this.onCanvasStoreChange)
   }
 
-  setup(width = 10, height = 10) {
-    this.width = width
-    this.height = height
+  setup(width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT) {
+    const { canvas: canvasStore } = this.stores
 
-    this.canvas.setup(width, height)
+    canvasStore.setDimensions(width, height)
     this.palette.setup()
     this.tool.activate()
+  }
+
+  onCanvasStoreChange(state, store) {
+    this.canvas.setContent(store.getString())
   }
 }

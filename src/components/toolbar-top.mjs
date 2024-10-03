@@ -2,20 +2,40 @@ import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
 
 export class ToolbarTop extends Toolbar {
+  elements = {
+    resizeInputWidth: null,
+    resizeInputHeight: null
+  }
+  /**
+   * @type {Paint}
+   */
+  paint = null
+
   constructor(paint) {
     super('emoji-paint__toolbar-top')
+    this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
+
     this.paint = paint
     this.setup()
+
+    const { canvas: canvasStore } = this.paint.stores
+
+    canvasStore.subscribe(this.onCanvasStoreChange)
+  }
+
+  onCanvasStoreChange(state) {
+    this.elements.resizeInputWidth.value = state.width
+    this.elements.resizeInputHeight.value = state.height
   }
 
   setup() {
     this.setupBtnCopy()
-    this.attachSeparator()
+    this.appendSeparator()
     this.setupBtnDownload()
     this.setupBtnUpload()
-    this.attachSpacer()
+    this.appendSpacer()
     this.setupResize()
-    this.attachSeparator()
+    this.appendSeparator()
     this.setupBtnClear()
   }
 
@@ -33,9 +53,9 @@ export class ToolbarTop extends Toolbar {
 
     inputWidth.classList.add('radius--left')
     inputWidth.type = inputHeight.type = 'number'
-    inputWidth.value = this.paint.width
+    inputWidth.value = this.paint.width.toString(10)
     inputHeight.classList.add('radius--middle')
-    inputHeight.value = this.paint.height
+    inputHeight.value = this.paint.height.toString(10)
 
     btnResize.classList.add(
       'emoji-paint__toolbar-top-btn-resize',
@@ -45,7 +65,9 @@ export class ToolbarTop extends Toolbar {
     btnResize.title = 'Resize Canvas'
     btnResize.innerText = '📐'
     btnResize.addEventListener('click', () => {
-        this.paint.canvas.setup(
+      const { canvas: canvasStore } = this.paint.stores
+
+      canvasStore.setDimensions(
           parseInt(inputWidth.value),
           parseInt(inputHeight.value)
         )
@@ -54,7 +76,10 @@ export class ToolbarTop extends Toolbar {
 
     containerResize.append(label, inputWidth, inputHeight, btnResize)
 
-    this.attachItem('resize', containerResize)
+    this.appendItem('resize', containerResize)
+
+    this.elements.resizeInputWidth = inputWidth
+    this.elements.resizeInputHeight = inputHeight
   }
 
   setupBtnClear() {
@@ -67,10 +92,12 @@ export class ToolbarTop extends Toolbar {
     btnClear.title = 'Clear Canvas'
     btnClear.innerText = '💥️'
     btnClear.addEventListener('click', () => {
-      this.paint.canvas.clear()
+      const { canvas: canvasStore } = this.paint.stores
+
+      canvasStore.clear()
     })
 
-    this.attachItem('btnCopy', btnClear)
+    this.appendItem('btnCopy', btnClear)
   }
 
   setupBtnCopy() {
@@ -83,10 +110,12 @@ export class ToolbarTop extends Toolbar {
     btnCopy.title = 'Copy to Clipboard'
     btnCopy.innerText = '📋'
     btnCopy.addEventListener('click', () => {
-      copyToClipboard(this.paint.canvas.data.toString())
+      const { canvas: canvasStore } = this.paint.stores
+
+      copyToClipboard(canvasStore.getString())
     })
 
-    this.attachItem('btnCopy', btnCopy)
+    this.appendItem('btnCopy', btnCopy)
   }
 
   setupBtnDownload() {
@@ -100,9 +129,9 @@ export class ToolbarTop extends Toolbar {
     btnDownload.title = 'Download'
     btnDownload.innerText = '⬇️'
     btnDownload.addEventListener('click', () => {
+      const { canvas: canvasStore } = this.paint.stores
+      const blob = new Blob([ canvasStore.getString() ], { type: 'text/plain' })
       const anchor = document.createElement('a')
-      const data = this.paint.canvas.data.toString()
-      const blob = new Blob([ data ], { type: 'text/plain' })
 
       anchor.download = 'emoji-paint.txt'
       anchor.href = URL.createObjectURL(blob)
@@ -113,7 +142,7 @@ export class ToolbarTop extends Toolbar {
       anchor.remove()
     })
 
-    this.attachItem('btnDownload', btnDownload)
+    this.appendItem('btnDownload', btnDownload)
   }
 
   setupBtnUpload() {
@@ -128,11 +157,9 @@ export class ToolbarTop extends Toolbar {
       const fileReader = new FileReader()
 
       fileReader.addEventListener('load', () => {
-        const { data } = this.paint.canvas
-        const { canvas } = this.paint
+        const { canvas: canvasStore } = this.paint.stores
 
-        data.setFromString(fileReader.result)
-        canvas.setup(data.width, data.height)
+        canvasStore.setString(fileReader.result)
       })
       fileReader.readAsText(file)
     })
@@ -145,6 +172,6 @@ export class ToolbarTop extends Toolbar {
     labelUpload.title = 'Upload'
     labelUpload.append('⬆️', btnUpload)
 
-    this.attachItem('btnUpload', labelUpload)
+    this.appendItem('btnUpload', labelUpload)
   }
 }
