@@ -16,7 +16,7 @@ export class Canvas {
    */
   rectangle = null
   /**
-   * @type {Rectangle}
+   * @type {MouseGrid}
    */
   mouseGrid = null
 
