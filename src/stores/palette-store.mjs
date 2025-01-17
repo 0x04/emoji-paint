@@ -20,8 +20,8 @@ export class PaletteStore extends PersistentStore {
   }
 
   write() {
+    // Filter all default, unchanged palettes out
     const newPalettes = this.state.palettes
-      .filter((palette, index) => this.paletteChanges.has(index))
       .filter((palette) => PaletteStore.initialState.palettes.findIndex(
         (defaultPalette) => defaultPalette.entries.length === palette.entries.length
           && defaultPalette.entries.every((entry, index) => entry === palette.entries[index])) < 0
