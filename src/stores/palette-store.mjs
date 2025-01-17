@@ -8,7 +8,7 @@ export class PaletteStore extends PersistentStore {
     palettes: new Collection('name', DEFAULT_PALETTES),
     selectedPaletteIndex: 0,
     // NOTE: 0 = mouse left, 1 = mouse middle, 2 = mouse right
-    selectedEntries: { 0: null, 1: null, 2: null }
+    selectedEntries: { 0: DEFAULT_BLANK, 1: DEFAULT_BLANK, 2: DEFAULT_BLANK }
   }
 
   paletteChanges = new Set()
@@ -16,7 +16,6 @@ export class PaletteStore extends PersistentStore {
   constructor() {
     super(PaletteStore.initialState, `${STORE_STORAGE_KEY}.palette`)
     this.state.selectedEntries[0] = this.getSelectedPalette().entries.at(0)
-    this.state.selectedEntries[2] = DEFAULT_BLANK
   }
 
   write() {

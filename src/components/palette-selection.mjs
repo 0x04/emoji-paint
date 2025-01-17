@@ -4,6 +4,7 @@ export class PaletteSelection {
   elements = {
     container: null,
     selectionLeft: null,
+    selectionMiddle: null,
     selectionRight: null
   }
   /**
@@ -17,27 +18,34 @@ export class PaletteSelection {
     const { store: paletteStore } = this.palette = palette
     const container = this.elements.container = document.createElement('div')
     const selectionLeft = this.elements.selectionLeft = document.createElement('div')
+    const selectionMiddle = this.elements.selectionMiddle = document.createElement('div')
     const selectionRight = this.elements.selectionRight = document.createElement('div')
+    const className = 'emoji-paint__palette-selection-item'
 
     container.classList.add('emoji-paint__palette-selection')
 
-    selectionLeft.classList.add('emoji-paint__palette-selection-left')
+    selectionLeft.classList.add(className, `${className}--left`)
     selectionLeft.textContent = DEFAULT_BLANK
     selectionLeft.title = 'Left mouse button'
 
-    selectionRight.classList.add('emoji-paint__palette-selection-right')
+    selectionMiddle.classList.add(className, `${className}--middle`)
+    selectionMiddle.textContent = DEFAULT_BLANK
+    selectionMiddle.title = 'Middle mouse button'
+
+    selectionRight.classList.add(className, `${className}--right`)
     selectionRight.textContent = DEFAULT_BLANK
     selectionRight.title = 'Right mouse button'
 
-    container.append(selectionLeft, selectionRight)
+    container.append(selectionLeft, selectionMiddle, selectionRight)
 
     paletteStore.subscribe(this.onPaletteStoreChange)
   }
 
   onPaletteStoreChange(state, store) {
-    const { selectionLeft, selectionRight } = this.elements
+    const { selectionLeft, selectionMiddle, selectionRight } = this.elements
 
     selectionLeft.textContent = store.getSelectedEntry(0)
+    selectionMiddle.textContent = store.getSelectedEntry(1)
     selectionRight.textContent = store.getSelectedEntry(2)
   }
 }

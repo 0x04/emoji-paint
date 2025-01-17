@@ -209,8 +209,7 @@ input, button, select, textarea {
     letter-spacing: 0.35rem;
   }
 
-  .emoji-paint__palette-selection-left,
-  .emoji-paint__palette-selection-right {
+  .emoji-paint__palette-selection-item {
     position: relative;
     border: 1px inset;
     border-radius: 0.25rem;
@@ -218,8 +217,7 @@ input, button, select, textarea {
     background: var(--canvas-background);
   }
 
-  .emoji-paint__palette-selection-left::before,
-  .emoji-paint__palette-selection-right::before {
+  .emoji-paint__palette-selection-item::before {
     position: absolute;
     border-radius: 100%;
     width: 2.5ch;
@@ -231,11 +229,15 @@ input, button, select, textarea {
     aspect-ratio: 1;
   }
 
-  .emoji-paint__palette-selection-left::before {
+  .emoji-paint__palette-selection-item--left::before {
     content: 'L';
   }
 
-  .emoji-paint__palette-selection-right::before {
+  .emoji-paint__palette-selection-item--middle::before {
+    content: 'M';
+  }
+
+  .emoji-paint__palette-selection-item--right::before {
     content: 'R';
   }
 
