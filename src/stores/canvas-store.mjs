@@ -54,7 +54,7 @@ export class CanvasStore extends PersistentStore {
     return { width, height }
   }
 
-  setDimensions(width, height, blank = DEFAULT_BLANK) {
+  setDimensions(width, height, blank = this.state.defaultBlank) {
     if (width === this.state.width && height === this.state.height) {
       return
     }
