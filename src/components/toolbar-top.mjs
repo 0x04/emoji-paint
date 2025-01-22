@@ -193,7 +193,7 @@ export class ToolbarTop extends Toolbar {
     label.innerHTML = 'Blank'
 
     button.innerText = canvasStore.state.defaultBlank
-    button.addEventListener('click', (event) => {
+    button.addEventListener('click', () => {
       // NOTE: For the moment a very basic solution. The first idea of using a
       // text input didn't work because of the internal handling of the
       // `input` event while entering emojis in windows.
