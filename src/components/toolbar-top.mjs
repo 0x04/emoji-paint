@@ -1,5 +1,6 @@
 import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
+import { isEmoji } from '../functions/is-emoji.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
@@ -35,6 +36,8 @@ export class ToolbarTop extends Toolbar {
     this.setupBtnUpload()
     this.appendSpacer()
     this.setupResize()
+    this.appendSeparator()
+    this.setupDefaultBlank()
     this.appendSeparator()
     this.setupBtnClear()
   }
@@ -175,5 +178,55 @@ export class ToolbarTop extends Toolbar {
     labelUpload.append('⬆️', btnUpload)
 
     this.appendItem('btnUpload', labelUpload)
+  }
+
+  setupDefaultBlank() {
+    const { canvas: canvasStore } = this.paint.stores
+    const container = document.createElement('div')
+    const label = document.createElement('span')
+    const button = document.createElement('button')
+
+    container.title = 'Default blank emoji'
+    container.classList.add('emoji-paint__toolbar-top-default-blank')
+
+    label.classList.add('emoji-paint__toolbar-label')
+    label.innerHTML = 'Blank'
+
+    button.innerText = canvasStore.state.defaultBlank
+    button.addEventListener('click', (event) => {
+      // NOTE: For the moment a very basic solution. The first idea of using a
+      // text input didn't work because of the internal handling of the
+      // `input` event while entering emojis in windows.
+      const userInput = prompt('Enter a emoji character', canvasStore.state.defaultBlank)
+
+      if (!userInput) {
+        return
+      }
+
+      const value = [ ...userInput ].pop()
+
+      if (!isEmoji(value)) {
+        alert('This not a valid emoji character!')
+        return
+      }
+
+      const newState = { defaultBlank: value }
+
+      if (confirm('Replace existing blank emojis?')) {
+        newState.matrix = structuredClone(canvasStore.state.matrix)
+          .map(line => {
+            return line.map(emoji => emoji === canvasStore.state.defaultBlank ? value : emoji)
+          })
+      }
+
+      button.innerText = value
+
+      canvasStore.setState(newState)
+      canvasStore.write()
+    })
+
+    container.append(label, button)
+
+    this.appendItem('btnDefaultBlank', container)
   }
 }
