@@ -13,6 +13,7 @@ export class CanvasStore extends PersistentStore {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     matrix: null,
+    defaultBlank: DEFAULT_BLANK
   }
 
   constructor() {
@@ -22,12 +23,11 @@ export class CanvasStore extends PersistentStore {
 
   create(
     width = this.state.width,
-    height = this.state.height,
-    blank = DEFAULT_BLANK
+    height = this.state.height
   ) {
     return new Array(height)
       .fill(undefined)
-      .map(() => new Array(width).fill(blank))
+      .map(() => new Array(width).fill(this.state.defaultBlank))
   }
 
   clear() {
