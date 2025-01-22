@@ -35,9 +35,9 @@ export class ToolbarTop extends Toolbar {
     this.setupBtnDownload()
     this.setupBtnUpload()
     this.appendSpacer()
-    this.setupResize()
-    this.appendSeparator()
     this.setupDefaultBlank()
+    this.appendSeparator()
+    this.setupResize()
     this.appendSeparator()
     this.setupBtnClear()
   }
