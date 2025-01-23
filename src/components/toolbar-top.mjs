@@ -183,14 +183,13 @@ export class ToolbarTop extends Toolbar {
   setupDefaultBlank() {
     const { canvas: canvasStore } = this.paint.stores
     const container = document.createElement('div')
-    const label = document.createElement('span')
+    const label = document.createElement('label')
     const button = document.createElement('button')
 
     container.title = 'Default blank emoji'
     container.classList.add('emoji-paint__toolbar-top-default-blank')
 
     label.classList.add('emoji-paint__toolbar-label')
-    label.innerHTML = 'Blank'
 
     button.innerText = canvasStore.state.defaultBlank
     button.addEventListener('click', () => {
@@ -225,7 +224,8 @@ export class ToolbarTop extends Toolbar {
       canvasStore.write()
     })
 
-    container.append(label, button)
+    label.append('Blank', ' ', button)
+    container.append(label)
 
     this.appendItem('btnDefaultBlank', container)
   }
