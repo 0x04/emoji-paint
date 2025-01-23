@@ -1,4 +1,5 @@
 import {
+  DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BLANK,
   DEFAULT_HEIGHT,
   DEFAULT_SEPARATOR,
@@ -13,7 +14,8 @@ export class CanvasStore extends PersistentStore {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     matrix: null,
-    defaultBlank: DEFAULT_BLANK
+    defaultBlank: DEFAULT_BLANK,
+    backgroundColor: DEFAULT_BACKGROUND_COLOR,
   }
 
   constructor() {
