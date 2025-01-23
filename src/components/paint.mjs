@@ -73,7 +73,15 @@ export class Paint {
     this.tool.activate()
   }
 
+  applyBackground(color) {
+    this.elements.container.style.setProperty(
+      '--canvas-background',
+      color
+    )
+  }
+
   onCanvasStoreChange(state, store) {
     this.canvas.setContent(store.getString())
+    this.applyBackground(store.state.backgroundColor)
   }
 }

@@ -35,6 +35,8 @@ export class ToolbarTop extends Toolbar {
     this.setupBtnDownload()
     this.setupBtnUpload()
     this.appendSpacer()
+    this.setupBackgroundColor()
+    this.appendSeparator()
     this.setupDefaultBlank()
     this.appendSeparator()
     this.setupResize()
@@ -178,6 +180,31 @@ export class ToolbarTop extends Toolbar {
     labelUpload.append('⬆️', btnUpload)
 
     this.appendItem('btnUpload', labelUpload)
+  }
+
+  setupBackgroundColor() {
+    const { canvas: canvasStore } = this.paint.stores
+    const container = document.createElement('div')
+    const label = document.createElement('label')
+    const input = document.createElement('input')
+
+    container.title = 'Background color'
+    container.classList.add('emoji-paint__toolbar-top-background-color')
+
+    label.classList.add('emoji-paint__toolbar-label')
+
+    input.type = 'color'
+    input.value = canvasStore.state.backgroundColor
+    input.addEventListener('change', () => {
+      canvasStore.setState({ backgroundColor: input.value })
+      canvasStore.write()
+    })
+
+    label.append('Background', ' ', input)
+
+    container.append(label)
+
+    this.appendItem('background', container)
   }
 
   setupDefaultBlank() {
