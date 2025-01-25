@@ -1,6 +1,11 @@
 import { isEmoji } from './is-emoji.mjs'
 
-// @see https://stackoverflow.com/a/71619350/2379235
+/**
+ * Splits a string containing emojis
+ * @param string
+ * @returns {string[]}
+ * @see https://stackoverflow.com/a/71619350/2379235
+ */
 export const splitEmoji = (string) => [ ...new Intl.Segmenter().segment(string) ]
   .map(x => x.segment)
   .filter(isEmoji)
