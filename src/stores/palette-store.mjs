@@ -26,7 +26,7 @@ export class PaletteStore extends PersistentStore {
           && defaultPalette.entries.every((entry, index) => entry === palette.entries[index])) < 0
       )
 
-    this.stateChanges.delete('palettes')
+    this.writeChange.delete('palettes')
 
     super.write({ ...this.state, palettes: newPalettes })
   }

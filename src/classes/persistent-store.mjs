@@ -9,7 +9,7 @@ export class PersistentStore extends Store {
   /**
    * @type {Set<string>}
    */
-  stateChanges = new Set()
+  writeChange = new Set()
 
   constructor(initialState, storageKey) {
     super(initialState)
@@ -19,8 +19,8 @@ export class PersistentStore extends Store {
   setState(newState) {
     super.setState(newState)
 
-    this.stateChanges = new Set([
-      ...this.stateChanges,
+    this.writeChange = new Set([
+      ...this.writeChange,
       ...Object.keys(newState)
     ])
   }
@@ -40,11 +40,11 @@ export class PersistentStore extends Store {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
     const storageData = JSON.parse(localStorage.getItem(storageKey)) ?? {}
 
-    if (Object.keys(newStoredState).length === 0 && !this.stateChanges.size) {
+    if (Object.keys(newStoredState).length === 0 && !this.writeChange.size) {
       return
     }
 
-    for (const statePropertyKey of this.stateChanges) {
+    for (const statePropertyKey of this.writeChange) {
       newStoredState[statePropertyKey] = this.state[statePropertyKey]
     }
 
@@ -52,7 +52,7 @@ export class PersistentStore extends Store {
 
     localStorage.setItem(storageKey, JSON.stringify(storageData))
 
-    this.stateChanges = new Set()
+    this.writeChange = new Set()
   }
 
   merge(storageState) {
