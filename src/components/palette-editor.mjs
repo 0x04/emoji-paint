@@ -1,4 +1,4 @@
-import { splitEmoji } from '../functions/split-emojis.mjs'
+import { matchEmojis } from '../functions/match-emojis.mjs'
 import { DEFAULT_PALETTES } from '../constants/palettes.mjs'
 import { isEmoji } from '../functions/is-emoji.mjs'
 
@@ -79,7 +79,7 @@ export class PaletteEditor {
     const { store: paletteStore } = this.palette
     const newPalette = {
       name: paletteStore.getSelectedPalette().name,
-      entries: [ ...new Set(splitEmoji(value)) ]
+      entries: [ ...new Set(matchEmojis(value)) ]
     }
 
     paletteStore.replacePalette(newPalette)

@@ -1,7 +1,7 @@
 import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
 import { isEmoji } from '../functions/is-emoji.mjs'
-import { splitEmoji } from '../functions/split-emojis.mjs'
+import { matchEmojis } from '../functions/match-emojis.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
@@ -230,7 +230,7 @@ export class ToolbarTop extends Toolbar {
         return
       }
 
-      const value = splitEmoji(userInput).pop()
+      const value = matchEmojis(userInput).pop()
 
       if (!isEmoji(value)) {
         alert('This not a valid emoji character!')

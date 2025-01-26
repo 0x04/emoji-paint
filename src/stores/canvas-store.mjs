@@ -6,7 +6,7 @@ import {
   DEFAULT_WIDTH,
   STORE_STORAGE_KEY
 } from '../constants/globals.mjs'
-import { splitEmoji } from '../functions/split-emojis.mjs'
+import { matchEmojis } from '../functions/match-emojis.mjs'
 import { PersistentStore } from '../classes/persistent-store.mjs'
 
 export class CanvasStore extends PersistentStore {
@@ -95,7 +95,7 @@ export class CanvasStore extends PersistentStore {
     const newMatrix = string
       .trim()
       .split(separator)
-      .map((line) => splitEmoji(line))
+      .map((line) => matchEmojis(line))
       .filter((line) => line.length > 0)
 
     const width = newMatrix.reduce(
