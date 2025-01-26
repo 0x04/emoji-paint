@@ -41,7 +41,11 @@ export class PaletteSelection {
     paletteStore.subscribe(this.onPaletteStoreChange)
   }
 
-  onPaletteStoreChange(state, store) {
+  onPaletteStoreChange(store) {
+    if (!store.hasChange('selectedEntries')) {
+      return
+    }
+
     const { selectionLeft, selectionMiddle, selectionRight } = this.elements
 
     selectionLeft.textContent = store.getSelectedEntry(0)

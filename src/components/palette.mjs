@@ -109,7 +109,9 @@ export class Palette {
     )
   }
 
-  onPaletteStoreChange() {
-    this.setup()
+  onPaletteStoreChange(store) {
+    if (store.hasChange('selectedPaletteIndex') || store.hasChange('palettes')) {
+      this.setup()
+    }
   }
 }

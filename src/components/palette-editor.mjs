@@ -118,9 +118,12 @@ export class PaletteEditor {
     this.disable()
   }
 
-  onPaletteStoreChange() {
-    const { store: paletteStore } = this.palette
-    const currentPalette = paletteStore.getSelectedPalette()
+  onPaletteStoreChange(store) {
+    if (!(store.hasChange('selectedPaletteIndex') || store.hasChange('palettes'))) {
+      return
+    }
+
+    const currentPalette = store.getSelectedPalette()
     const paletteDefault = DEFAULT_PALETTES.find((palette) => palette.name === currentPalette.name)
 
     this.elements.btnReset.disabled = (!paletteDefault)

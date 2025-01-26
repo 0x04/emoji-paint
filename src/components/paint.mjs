@@ -80,8 +80,13 @@ export class Paint {
     )
   }
 
-  onCanvasStoreChange(state, store) {
-    this.canvas.setContent(store.getString())
-    this.applyBackground(store.state.backgroundColor)
+  onCanvasStoreChange(store) {
+    if (store.hasChange('matrix')) {
+      this.canvas.setContent(store.getString())
+    }
+
+    if (store.hasChange('backgroundColor')) {
+      this.applyBackground(store.getProperty('backgroundColor'))
+    }
   }
 }

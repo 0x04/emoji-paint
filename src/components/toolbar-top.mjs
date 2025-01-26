@@ -25,9 +25,14 @@ export class ToolbarTop extends Toolbar {
     canvasStore.subscribe(this.onCanvasStoreChange)
   }
 
-  onCanvasStoreChange(state) {
-    this.elements.resizeInputWidth.value = state.width
-    this.elements.resizeInputHeight.value = state.height
+  onCanvasStoreChange(store) {
+    if (store.hasChange('width')) {
+      this.elements.resizeInputWidth.value = store.getProperty('width')
+    }
+
+    if (store.hasChange('height')) {
+      this.elements.resizeInputHeight.value = store.getProperty('height')
+    }
   }
 
   setup() {
@@ -195,7 +200,7 @@ export class ToolbarTop extends Toolbar {
     label.classList.add('emoji-paint__toolbar-label')
 
     input.type = 'color'
-    input.value = canvasStore.state.backgroundColor
+    input.value = canvasStore.getProperty('backgroundColor')
     input.addEventListener('change', () => {
       canvasStore.setState({ backgroundColor: input.value })
       canvasStore.write()
@@ -210,6 +215,7 @@ export class ToolbarTop extends Toolbar {
 
   setupDefaultBlank() {
     const { canvas: canvasStore } = this.paint.stores
+    const defaultBlank = canvasStore.getProperty('defaultBlank')
     const container = document.createElement('div')
     const label = document.createElement('label')
     const button = document.createElement('button')
@@ -219,12 +225,12 @@ export class ToolbarTop extends Toolbar {
 
     label.classList.add('emoji-paint__toolbar-label')
 
-    button.innerText = canvasStore.state.defaultBlank
+    button.innerText = defaultBlank
     button.addEventListener('click', () => {
       // NOTE: For the moment a very basic solution. The first idea of using a
       // text input didn't work because of the internal handling of the
       // `input` event while entering emojis in windows.
-      const userInput = prompt('Enter a emoji character', canvasStore.state.defaultBlank)
+      const userInput = prompt('Enter a emoji character', defaultBlank)
 
       if (!userInput) {
         return
@@ -240,9 +246,9 @@ export class ToolbarTop extends Toolbar {
       const newState = { defaultBlank: value }
 
       if (confirm('Replace existing blank emojis?')) {
-        newState.matrix = structuredClone(canvasStore.state.matrix)
+        newState.matrix = structuredClone(canvasStore.getProperty('matrix'))
           .map(line => {
-            return line.map(emoji => emoji === canvasStore.state.defaultBlank ? value : emoji)
+            return line.map(emoji => emoji === defaultBlank ? value : emoji)
           })
       }
 
