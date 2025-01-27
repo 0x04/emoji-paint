@@ -1,5 +1,6 @@
 import { Store } from './store.mjs'
 import { Collection } from './collection.js'
+import { versionString } from '../constants/versionString.mjs'
 
 export class PersistentStore extends Store {
   /**
@@ -68,6 +69,18 @@ export class PersistentStore extends Store {
     }
 
     storageData[stateKey] = newStoredState
+
+    // NOTE: Store current app version, e.g. for migrate breaking changes etc.
+    if (storageData.version !== versionString) {
+      // TODO: Do something meaningful. Definable handler?
+      console.warn(
+        'Data version mismatch!',
+        `Data is stored with version ${storageData.version}, but current version is ${versionString}.`,
+        'Overwriting.'
+      )
+    }
+
+    storageData.version = versionString
 
     localStorage.setItem(storageKey, JSON.stringify(storageData))
 
