@@ -2,8 +2,15 @@ import { Canvas } from './canvas.mjs'
 import { Palette } from './palette.mjs'
 import { DrawTool } from '../tools/draw-tool.mjs'
 import { ToolbarTop } from './toolbar-top.mjs'
+import { versionString } from '../constants/versionString.mjs'
 
 export class Paint {
+  /**
+   * The current app version
+   * @type {number}
+   */
+  static version = versionString
+
   /**
    * @type {Canvas}
    */
