@@ -199,7 +199,7 @@ export class ToolbarTop extends Toolbar {
     input.type = 'color'
     input.value = canvasStore.getProperty('backgroundColor')
     input.addEventListener('change', () => {
-      canvasStore.setState({ backgroundColor: input.value })
+      canvasStore.setProperty('backgroundColor', input.value)
       canvasStore.write()
     })
 

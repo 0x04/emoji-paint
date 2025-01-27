@@ -45,7 +45,7 @@ export class CanvasStore extends PersistentStore {
    * Clears the canvas matrix.
    */
   clear() {
-    this.setState({ ...{ matrix: this.create() } })
+    this.setProperty('matrix', this.create())
   }
 
   /**
@@ -65,7 +65,7 @@ export class CanvasStore extends PersistentStore {
       newMatrix[point.y][point.x] = value
     })
 
-    this.setState({ ...{ matrix: newMatrix } })
+    this.setProperty('matrix', newMatrix)
   }
 
   /**

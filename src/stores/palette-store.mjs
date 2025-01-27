@@ -62,7 +62,7 @@ export class PaletteStore extends PersistentStore {
     newPalettes.splice(paletteIndex, 1, newPalette)
 
     this.paletteChanges.add(paletteIndex)
-    this.setState({ palettes: newPalettes })
+    this.setProperty('palettes', newPalettes)
   }
 
   /**
@@ -99,7 +99,7 @@ export class PaletteStore extends PersistentStore {
       throw new RangeError(`Palette with index "${newIndex}" doest not exist!`)
     }
 
-    this.setState({ selectedPaletteIndex: newIndex })
+    this.setProperty('selectedPaletteIndex', newIndex)
   }
 
   /**
@@ -130,6 +130,6 @@ export class PaletteStore extends PersistentStore {
       ...{ [button]: entry }
     }
 
-    this.setState({ ...{ selectedEntries: newSelectedEntries } })
+    this.setProperty('selectedEntries', newSelectedEntries)
   }
 }
