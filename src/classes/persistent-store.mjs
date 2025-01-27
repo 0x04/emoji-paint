@@ -5,17 +5,22 @@ export class PersistentStore extends Store {
   /**
    * @type {string}
    */
-  storageKey = null
+  storageKey = ''
   /**
    * @type {Set<string>}
    */
   writeChange = new Set()
 
+  /**
+   * @param {Object} initialState A object containing the initial properties of state
+   * @param {string} storageKey A string containing the storage item and key identifier e.g. `appXYZ.objectKey`
+   */
   constructor(initialState, storageKey) {
     super(initialState)
     this.storageKey = storageKey
   }
 
+  /** @inheritDoc */
   setState(newState) {
     super.setState(newState)
 
@@ -25,6 +30,16 @@ export class PersistentStore extends Store {
     ])
   }
 
+  /** @inheritDoc */
+  setProperty(name, value) {
+    super.setProperty(name, value)
+
+    this.writeChange.add(name)
+  }
+
+  /**
+   * Reads the state from `localStorage`.
+   */
   read() {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
     const storage = JSON.parse(localStorage.getItem(storageKey))
@@ -36,6 +51,10 @@ export class PersistentStore extends Store {
     this.setState(this.merge(storage[stateKey]))
   }
 
+  /**
+   * Writes the state to `localStorage`.
+   * @param {Object} [newStoredState]
+   */
   write(newStoredState = structuredClone(this.state)) {
     const [ storageKey, stateKey ] = this.storageKey.split('.')
     const storageData = JSON.parse(localStorage.getItem(storageKey)) ?? {}
@@ -55,6 +74,11 @@ export class PersistentStore extends Store {
     this.writeChange = new Set()
   }
 
+  /**
+   * Merges the object `storageState` into the current state.
+   * @param {Object} storageState
+   * @returns {Object}
+   */
   merge(storageState) {
     const mergedState = this.clone(this.state)
 
@@ -81,6 +105,10 @@ export class PersistentStore extends Store {
     return mergedState
   }
 
+  /**
+   * Return a clone of the current state with the correct initial state data types.
+   * @returns {Object}
+   */
   clone() {
     const clonedState = structuredClone(this.state)
     const initialState = this.constructor.initialState

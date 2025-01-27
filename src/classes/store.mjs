@@ -20,7 +20,7 @@ export class Store {
   isSubscribePhase = false
 
   /**
-   * @param {Object} initialState
+   * @param {Object} [initialState] A object containing the initial properties of state
    */
   constructor(initialState = {}) {
     this.state = structuredClone(initialState)
@@ -29,7 +29,7 @@ export class Store {
   }
 
   /**
-   * Returns the state object
+   * Returns the state object.
    * @returns {Object}
    */
   getState() {
@@ -37,7 +37,7 @@ export class Store {
   }
 
   /**
-   * Spreads new state into current one
+   * Spreads new state into current one.
    * @param {Object} newState
    */
   setState(newState) {
@@ -47,7 +47,7 @@ export class Store {
   }
 
   /**
-   * Gets state property by name
+   * Gets state property by name.
    * @param {string} name
    * @returns {*}
    */
@@ -56,7 +56,7 @@ export class Store {
   }
 
   /**
-   * Sets state property by name
+   * Sets state property by name.
    * @param {string} name
    * @param {*} value
    */
@@ -65,8 +65,8 @@ export class Store {
   }
 
   /**
-   * Checks if state property has changed
-   * @param {Array} propertyNames
+   * Checks if state property has changed.
+   * @param {...string} propertyNames
    * @returns {boolean}
    */
   hasChange(...propertyNames) {
@@ -82,7 +82,7 @@ export class Store {
   }
 
   /**
-   * Adds a listener function
+   * Adds a listener function.
    * @param {Function} listener
    */
   subscribe(listener) {
@@ -94,7 +94,7 @@ export class Store {
   }
 
   /**
-   * Execute all listeners
+   * Executes all listeners.
    */
   emit() {
     this.listeners.forEach(

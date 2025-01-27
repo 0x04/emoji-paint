@@ -10,6 +10,9 @@ import { matchEmojis } from '../functions/match-emojis.mjs'
 import { PersistentStore } from '../classes/persistent-store.mjs'
 
 export class CanvasStore extends PersistentStore {
+  /**
+   * @type {{width: number, height: number, matrix: null, defaultBlank: string, backgroundColor: string}}
+   */
   static initialState = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
@@ -23,6 +26,12 @@ export class CanvasStore extends PersistentStore {
     this.state.matrix = this.create()
   }
 
+  /**
+   * Returns a canvas with the given dimensions.
+   * @param width
+   * @param height
+   * @returns {string[][]} The new canvas matrix
+   */
   create(
     width = this.state.width,
     height = this.state.height
@@ -32,16 +41,24 @@ export class CanvasStore extends PersistentStore {
       .map(() => new Array(width).fill(this.state.defaultBlank))
   }
 
+  /**
+   * Clears the canvas matrix.
+   */
   clear() {
     this.setState({ ...{ matrix: this.create() } })
   }
 
+  /**
+   * Sets the given points in the canvas matrix to the given value.
+   * @param {string} value
+   * @param {...Point} points
+   */
   setPoints(value, ...points) {
     const { width, height } = this.state
     const newMatrix = structuredClone(this.state.matrix)
 
     points.forEach(point => {
-      if (point.x < 0 && point.x >= width && y < 0 || point.y >= height) {
+      if (point.x < 0 && point.x >= width && point.y < 0 || point.y >= height) {
         throw new RangeError('Coordinates are outside the canvas area!')
       }
 
@@ -51,11 +68,22 @@ export class CanvasStore extends PersistentStore {
     this.setState({ ...{ matrix: newMatrix } })
   }
 
+  /**
+   * Returns the current dimensions of the canvas matrix.
+   * @returns {{width: number, height: number}}
+   */
   getDimensions() {
     const { width, height } = this.state
     return { width, height }
   }
 
+  /**
+   * Defines the dimensions of the canvas matrix. If one of the dimensions is larger than the current one, the new
+   * fields are filled with the content of `blank`.
+   * @param {number} width
+   * @param {number} height
+   * @param {string} [blank]
+   */
   setDimensions(width, height, blank = this.state.defaultBlank) {
     if (width === this.state.width && height === this.state.height) {
       return
@@ -84,6 +112,11 @@ export class CanvasStore extends PersistentStore {
     this.setState({ width, height, matrix: newMatrix })
   }
 
+  /**
+   * Returns the content of the canvas matrix as string.
+   * @param {string} [separator] The line separator
+   * @returns {string}
+   */
   getString(separator = DEFAULT_SEPARATOR) {
     return this.state.matrix.reduce(
       (result, line) => result + line.join('') + separator,
@@ -91,6 +124,12 @@ export class CanvasStore extends PersistentStore {
     )
   }
 
+  /**
+   * Sets the content of the canvas matrix from the given string.
+   * @param {string} string
+   * @param {string} [blank]
+   * @param {string} [separator]
+   */
   setString(string, blank = DEFAULT_BLANK, separator = DEFAULT_SEPARATOR) {
     const newMatrix = string
       .trim()
