@@ -71,7 +71,7 @@ export class PersistentStore extends Store {
     storageData[stateKey] = newStoredState
 
     // NOTE: Store current app version, e.g. for migrate breaking changes etc.
-    if (storageData.version !== versionString) {
+    if (storageData.version && storageData.version !== versionString) {
       // TODO: Do something meaningful. Definable handler?
       console.warn(
         'Data version mismatch!',
