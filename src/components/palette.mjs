@@ -110,7 +110,7 @@ export class Palette {
   }
 
   onPaletteStoreChange(store) {
-    if (store.hasChange('selectedPaletteIndex') || store.hasChange('palettes')) {
+    if (store.hasChange('selectedPaletteIndex', 'palettes')) {
       this.setup()
     }
   }

@@ -119,7 +119,7 @@ export class PaletteEditor {
   }
 
   onPaletteStoreChange(store) {
-    if (!(store.hasChange('selectedPaletteIndex') || store.hasChange('palettes'))) {
+    if (!(store.hasChange('selectedPaletteIndex', 'palettes'))) {
       return
     }
 

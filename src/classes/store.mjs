@@ -66,11 +66,19 @@ export class Store {
 
   /**
    * Checks if state property has changed
-   * @param propertyName
+   * @param {Array} propertyNames
    * @returns {boolean}
    */
-  hasChange(propertyName) {
-    return (this.isSubscribePhase || this.stateChange.some(changedName => changedName === propertyName))
+  hasChange(...propertyNames) {
+    if (this.isSubscribePhase) {
+      return true
+    }
+
+    return propertyNames.some(
+      (propertyName) => this.stateChange.some(
+        (changedName) => propertyName === changedName
+      )
+    )
   }
 
   /**

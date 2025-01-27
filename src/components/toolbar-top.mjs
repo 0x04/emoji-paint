@@ -26,11 +26,8 @@ export class ToolbarTop extends Toolbar {
   }
 
   onCanvasStoreChange(store) {
-    if (store.hasChange('width')) {
+    if (store.hasChange('width', 'height')) {
       this.elements.resizeInputWidth.value = store.getProperty('width')
-    }
-
-    if (store.hasChange('height')) {
       this.elements.resizeInputHeight.value = store.getProperty('height')
     }
   }
