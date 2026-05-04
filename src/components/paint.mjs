@@ -3,11 +3,13 @@ import { Palette } from './palette.mjs'
 import { DrawTool } from '../tools/draw-tool.mjs'
 import { ToolbarTop } from './toolbar-top.mjs'
 import { versionString } from '../constants/versionString.mjs'
+import { CanvasStore } from '../stores/canvas-store.mjs'
+import { PaletteStore } from '../stores/palette-store.mjs'
 
 export class Paint {
   /**
    * The current app version
-   * @type {number}
+   * @type {string}
    */
   static version = versionString
 
@@ -15,6 +17,10 @@ export class Paint {
    * @type {Canvas}
    */
   canvas = null
+  /**
+   * @type {Object}
+   */
+  stores = {}
   /**
    * @type {Palette}
    */
@@ -32,14 +38,15 @@ export class Paint {
   width = 10
   height = 10
 
-  constructor(element = document.createElement('div'), stores) {
-    if (!stores || !stores.canvas) {
-      throw new Error('Argument `stores` must be defined!')
-    }
-
+  constructor(element = document.createElement('div')) {
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
 
-    const { canvas: canvasStore } = this.stores = stores
+    this.stores = {
+      canvas: new CanvasStore(),
+      palette: new PaletteStore()
+    }
+
+    const { canvas: canvasStore } = this.stores
 
     canvasStore.read()
 
