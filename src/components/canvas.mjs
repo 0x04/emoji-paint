@@ -21,22 +21,31 @@ export class Canvas {
   mouseGrid = null
 
   constructor() {
+    this.onResize = this.onResize.bind(this)
+
     this.metrics = new Metrics()
 
     this.element = document.createElement('div')
     this.element.classList.add('emoji-paint__canvas')
     this.element.addEventListener('contextmenu', (event) => event.preventDefault())
+
+    this.resizeObserver = new ResizeObserver(this.onResize);
+    this.resizeObserver.observe(this.element)
+    this.onResize()
+  }
+
+  onResize() {
+    this.metrics.measure()
+    this.rectangle = new Rectangle(
+      0,
+      0,
+      this.element.scrollWidth,
+      this.element.scrollHeight
+    )
+    this.mouseGrid = new MouseGrid(this.rectangle, this.metrics.rectangle)
   }
 
   setContent(content) {
-    const { element, metrics } = this
-
-    metrics.measure()
-
-    element.innerText = content
-
-    // TODO: This should only happen on dimension change
-    this.rectangle = new Rectangle(0, 0, element.scrollWidth, element.scrollHeight)
-    this.mouseGrid = new MouseGrid(this.rectangle, metrics.rectangle)
+    this.element.innerText = content
   }
 }
