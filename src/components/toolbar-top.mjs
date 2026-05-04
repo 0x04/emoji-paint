@@ -2,6 +2,7 @@ import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
 import { isEmoji } from '../functions/is-emoji.mjs'
 import { matchEmojis } from '../functions/match-emojis.mjs'
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
@@ -9,20 +10,17 @@ export class ToolbarTop extends Toolbar {
     resizeInputHeight: null
   }
   /**
-   * @type {Paint}
+   * @type {CanvasStore}
    */
-  paint = null
+  canvasStore = null
 
-  constructor(paint) {
+  constructor(canvasStore) {
     super('emoji-paint__toolbar-top')
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
 
-    this.paint = paint
+    this.canvasStore = canvasStore
     this.setup()
-
-    const { canvas: canvasStore } = this.paint.stores
-
-    canvasStore.subscribe(this.onCanvasStoreChange)
+    this.canvasStore.subscribe(this.onCanvasStoreChange)
   }
 
   onCanvasStoreChange(store) {
@@ -48,23 +46,21 @@ export class ToolbarTop extends Toolbar {
   }
 
   setupResize() {
-    const containerResize = document.createElement('div')
     const label = document.createElement('span')
-    const inputWidth = document.createElement('input')
-    const inputHeight = document.createElement('input')
-    const btnResize = document.createElement('button')
-
-    containerResize.classList.add('emoji-paint__toolbar-top-resize')
-
     label.classList.add('emoji-paint__toolbar-label')
     label.innerText = 'Size'
 
+    const inputWidth = this.elements.resizeInputWidth = document.createElement('input')
     inputWidth.classList.add('radius--left')
-    inputWidth.type = inputHeight.type = 'number'
-    inputWidth.value = this.paint.width.toString(10)
-    inputHeight.classList.add('radius--middle')
-    inputHeight.value = this.paint.height.toString(10)
+    inputWidth.type = 'number'
+    inputWidth.value = String(DEFAULT_WIDTH)
 
+    const inputHeight = this.elements.resizeInputHeight = document.createElement('input')
+    inputHeight.classList.add('radius--middle')
+    inputHeight.value = String(DEFAULT_HEIGHT)
+    inputHeight.type = 'number'
+
+    const btnResize = document.createElement('button')
     btnResize.classList.add(
       'emoji-paint__toolbar-top-btn-resize',
       'emoji-paint__btn-icon',
@@ -73,21 +69,18 @@ export class ToolbarTop extends Toolbar {
     btnResize.title = 'Resize Canvas'
     btnResize.innerText = '📐'
     btnResize.addEventListener('click', () => {
-      const { canvas: canvasStore } = this.paint.stores
-
-      canvasStore.setDimensions(
+      this.canvasStore.setDimensions(
         parseInt(inputWidth.value),
         parseInt(inputHeight.value)
       )
-      canvasStore.write()
+      this.canvasStore.write()
     })
 
+    const containerResize = document.createElement('div')
+    containerResize.classList.add('emoji-paint__toolbar-top-resize')
     containerResize.append(label, inputWidth, inputHeight, btnResize)
 
     this.appendItem('resize', containerResize)
-
-    this.elements.resizeInputWidth = inputWidth
-    this.elements.resizeInputHeight = inputHeight
   }
 
   setupBtnClear() {
@@ -100,10 +93,8 @@ export class ToolbarTop extends Toolbar {
     btnClear.title = 'Clear Canvas'
     btnClear.innerText = '💥️'
     btnClear.addEventListener('click', () => {
-      const { canvas: canvasStore } = this.paint.stores
-
-      canvasStore.clear()
-      canvasStore.write()
+      this.canvasStore.clear()
+      this.canvasStore.write()
     })
 
     this.appendItem('btnCopy', btnClear)
@@ -119,9 +110,7 @@ export class ToolbarTop extends Toolbar {
     btnCopy.title = 'Copy to Clipboard'
     btnCopy.innerText = '📋'
     btnCopy.addEventListener('click', () => {
-      const { canvas: canvasStore } = this.paint.stores
-
-      copyToClipboard(canvasStore.getString())
+      copyToClipboard(this.canvasStore.getString())
     })
 
     this.appendItem('btnCopy', btnCopy)
@@ -138,8 +127,7 @@ export class ToolbarTop extends Toolbar {
     btnDownload.title = 'Download'
     btnDownload.innerText = '⬇️'
     btnDownload.addEventListener('click', () => {
-      const { canvas: canvasStore } = this.paint.stores
-      const blob = new Blob([ canvasStore.getString() ], { type: 'text/plain' })
+      const blob = new Blob([ this.canvasStore.getString() ], { type: 'text/plain' })
       const anchor = document.createElement('a')
 
       anchor.download = 'emoji-paint.txt'
@@ -166,10 +154,8 @@ export class ToolbarTop extends Toolbar {
       const fileReader = new FileReader()
 
       fileReader.addEventListener('load', () => {
-        const { canvas: canvasStore } = this.paint.stores
-
-        canvasStore.setString(fileReader.result)
-        canvasStore.write()
+        this.canvasStore.setString(fileReader.result)
+        this.canvasStore.write()
       })
       fileReader.readAsText(file)
     })
@@ -186,7 +172,6 @@ export class ToolbarTop extends Toolbar {
   }
 
   setupBackgroundColor() {
-    const { canvas: canvasStore } = this.paint.stores
     const container = document.createElement('div')
     const label = document.createElement('label')
     const input = document.createElement('input')
@@ -197,10 +182,10 @@ export class ToolbarTop extends Toolbar {
     label.classList.add('emoji-paint__toolbar-label')
 
     input.type = 'color'
-    input.value = canvasStore.getProperty('backgroundColor')
+    input.value = this.canvasStore.getProperty('backgroundColor')
     input.addEventListener('change', () => {
-      canvasStore.setProperty('backgroundColor', input.value)
-      canvasStore.write()
+      this.canvasStore.setProperty('backgroundColor', input.value)
+      this.canvasStore.write()
     })
 
     label.append('Background', ' ', input)
@@ -211,8 +196,7 @@ export class ToolbarTop extends Toolbar {
   }
 
   setupDefaultBlank() {
-    const { canvas: canvasStore } = this.paint.stores
-    const defaultBlank = canvasStore.getProperty('defaultBlank')
+    const defaultBlank = this.canvasStore.getProperty('defaultBlank')
     const container = document.createElement('div')
     const label = document.createElement('label')
     const button = document.createElement('button')
@@ -243,7 +227,7 @@ export class ToolbarTop extends Toolbar {
       const newState = { defaultBlank: value }
 
       if (confirm('Replace existing blank emojis?')) {
-        newState.matrix = structuredClone(canvasStore.getProperty('matrix'))
+        newState.matrix = structuredClone(this.canvasStore.getProperty('matrix'))
           .map(line => {
             return line.map(emoji => emoji === defaultBlank ? value : emoji)
           })
@@ -251,8 +235,8 @@ export class ToolbarTop extends Toolbar {
 
       button.innerText = value
 
-      canvasStore.setState(newState)
-      canvasStore.write()
+      this.canvasStore.setState(newState)
+      this.canvasStore.write()
     })
 
     label.append('Blank', ' ', button)

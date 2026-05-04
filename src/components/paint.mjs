@@ -41,42 +41,36 @@ export class Paint {
   constructor(element = document.createElement('div')) {
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
 
-    this.stores = {
+    const { canvas: canvasStore, palette: paletteStore } = this.stores = {
       canvas: new CanvasStore(),
       palette: new PaletteStore()
     }
 
-    const { canvas: canvasStore } = this.stores
-
     canvasStore.read()
 
     this.canvas = new Canvas()
-    this.palette = new Palette(this)
-    this.tool = new DrawTool(this)
-    this.toolbars.top = new ToolbarTop(this)
+    this.palette = new Palette(paletteStore)
+    this.tool = new DrawTool(this.canvas, canvasStore, paletteStore)
+    this.toolbars.top = new ToolbarTop(canvasStore)
 
-    const { elements } = this
-    const container = elements.container = element
-    const head = elements.head = document.createElement('div')
-    const body = elements.body = document.createElement('div')
-
-    container.classList.add('emoji-paint__container')
-
+    const head = this.elements.head = document.createElement('div')
     head.classList.add('emoji-paint__head')
     head.innerText = '🎨 EmojiPaint'
 
+    const body = this.elements.body = document.createElement('div')
     body.classList.add('emoji-paint__body')
-
     body.append(
       this.toolbars.top.element,
       this.canvas.element,
       this.palette.elements.container,
     )
 
+    const container = this.elements.container = element
+    container.classList.add('emoji-paint__container')
     container.append(head, body)
 
-    if (!this.elements.container.parentElement) {
-      document.body.append(this.elements.container)
+    if (!container.parentElement) {
+      document.body.append(container)
     }
 
     canvasStore.subscribe(this.onCanvasStoreChange)

@@ -1,37 +1,52 @@
 import { Point } from '../classes/point.mjs'
 
 export class Tool {
-  paint = null
+  /**
+   * @type {Canvas}
+   */
+  canvas = null
+  /**
+   * @type {{canvas, palette}}
+   * @property {CanvasStore} canvas
+   * @property {PaletteStore} palette
+   */
+  stores = { canvas: null, palette: null }
   button = 0
   isMouseDown = false
   point = null
   prevPoint = null
 
-  constructor(paint) {
-    this.paint = paint
+  constructor(canvas, canvasStore, paletteStore) {
     this.onMouseDown = this.onMouseDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.onMouseUp = this.onMouseUp.bind(this)
+
+    this.canvas = canvas
+    this.stores = { canvas: canvasStore, palette: paletteStore }
   }
 
   activate() {
-    const { element } = this.paint.canvas
+    const { element } = this.canvas
     element.addEventListener('mousedown', this.onMouseDown)
     element.addEventListener('mousemove', this.onMouseMove)
     window.addEventListener('mouseup', this.onMouseUp)
   }
 
   deactivate() {
-    const { element } = this.paint.canvas
+    const { element } = this.canvas
     element.removeEventListener('mousedown', this.onMouseDown)
     element.removeEventListener('mousemove', this.onMouseMove)
     window.removeEventListener('mouseup', this.onMouseUp)
   }
 
+  /**
+   * Implement functionality in a child class
+   * @param {MouseEvent} event
+   * @returns {boolean}
+   */
   apply(event) {
-    const { canvas: canvasStore } = this.paint.stores
-    const { width, height } = canvasStore.getDimensions()
-    const point = this.paint.canvas.mouseGrid.getPointFromEvent(event)
+    const { width, height } = this.stores.canvas.getDimensions()
+    const point = this.canvas.mouseGrid.getPointFromEvent(event)
 
     this.prevPoint = this.point
 
@@ -47,7 +62,6 @@ export class Tool {
     this.point = point
 
     return true
-    // Implement in child class
   }
 
   onMouseDown(event) {
@@ -67,10 +81,7 @@ export class Tool {
       this.isMouseDown = false
       this.point = null
       this.prevPoint = null
-
-      const { canvas: canvasStore } = this.paint.stores
-
-      canvasStore.write()
+      this.stores.canvas.write()
     }
   }
 }

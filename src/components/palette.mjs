@@ -10,10 +10,6 @@ export class Palette {
     items: null,
   }
   /**
-   * @type {Paint}
-   */
-  paint = null
-  /**
    * @type {PaletteStore}
    */
   store = null
@@ -30,13 +26,13 @@ export class Palette {
    */
   selection = null
 
-  constructor(paint) {
+  constructor(store) {
     this.onMouseDown = this.onMouseDown.bind(this)
     this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)
 
-    this.paint = paint
+    this.store = store
+    this.store.read()
 
-    const paletteStore = this.store = paint.stores.palette
     const container = this.elements.container = document.createElement('div')
     const items = this.elements.items = document.createElement('div')
 
@@ -45,8 +41,6 @@ export class Palette {
     items.classList.add('emoji-paint__palette-items')
     items.addEventListener('mousedown', this.onMouseDown)
     items.addEventListener('contextmenu', (event) => event.preventDefault())
-
-    paletteStore.read()
 
     this.selection = new PaletteSelection(this)
     this.dropdown = new PaletteDropdown(this)
@@ -59,7 +53,7 @@ export class Palette {
       items
     )
 
-    paletteStore.subscribe(this.onPaletteStoreChange)
+    store.subscribe(this.onPaletteStoreChange)
 
     this.setup()
   }
