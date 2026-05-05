@@ -5,6 +5,7 @@ import { ToolbarTop } from './toolbar-top.mjs'
 import { versionString } from '../constants/versionString.mjs'
 import { CanvasStore } from '../stores/canvas-store.mjs'
 import { PaletteStore } from '../stores/palette-store.mjs'
+import { UndoRedoStore } from '../stores/undo-redo-store.js'
 
 export class Paint {
   /**
@@ -39,17 +40,20 @@ export class Paint {
   constructor(element = document.createElement('div')) {
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
 
-    const { canvas: canvasStore, palette: paletteStore } = this.stores = {
-      canvas: new CanvasStore(),
-      palette: new PaletteStore()
-    }
+    const canvasStore = new CanvasStore()
+    const paletteStore = new PaletteStore()
+    const undoRedoStore = new UndoRedoStore(canvasStore)
 
-    canvasStore.read()
+    this.stores = {
+      canvas: canvasStore,
+      palette: paletteStore,
+      undoRedo: undoRedoStore
+    }
 
     this.canvas = new Canvas()
     this.palette = new Palette(paletteStore)
     this.tool = new DrawTool(this.canvas, canvasStore, paletteStore)
-    this.toolbars.top = new ToolbarTop(canvasStore)
+    this.toolbars.top = new ToolbarTop(canvasStore, undoRedoStore)
 
     const head = this.elements.head = document.createElement('div')
     head.classList.add('emoji-paint__head')

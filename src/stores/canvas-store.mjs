@@ -22,9 +22,13 @@ export class CanvasStore extends PersistentStore {
     backgroundColor: DEFAULT_BACKGROUND_COLOR,
   }
 
-  constructor() {
+  constructor(read = true) {
     super(CanvasStore.initialState, `${STORE_STORAGE_KEY}.canvas`)
     this.state.matrix = this.create()
+
+    if (read) {
+      this.read()
+    }
   }
 
   /**

@@ -7,20 +7,30 @@ import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 export class ToolbarTop extends Toolbar {
   elements = {
     resizeInputWidth: null,
-    resizeInputHeight: null
+    resizeInputHeight: null,
+    btnUndo: null,
+    btnRedo: null
   }
   /**
    * @type {CanvasStore}
    */
   canvasStore = null
+  /**
+   * @type {UndoRedoStore}
+   */
+  undoRedoStore = null
 
-  constructor(canvasStore) {
+  constructor(canvasStore, undoRedoStore) {
     super('emoji-paint__toolbar-top')
+
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
+    this.onUndoRedoStoreChange = this.onUndoRedoStoreChange.bind(this)
 
     this.canvasStore = canvasStore
+    this.undoRedoStore = undoRedoStore
     this.setup()
     this.canvasStore.subscribe(this.onCanvasStoreChange)
+    this.undoRedoStore.subscribe(this.onUndoRedoStoreChange)
   }
 
   onCanvasStoreChange(store) {
@@ -30,7 +40,16 @@ export class ToolbarTop extends Toolbar {
     }
   }
 
+  onUndoRedoStoreChange(store) {
+    if (store.hasChange('currentIndex')) {
+      this.elements.btnUndo.disabled = !store.canUndo
+      this.elements.btnRedo.disabled = !store.canRedo
+    }
+  }
+
   setup() {
+    this.setupUndoRedo()
+    this.appendSeparator()
     this.setupBtnCopy()
     this.appendSeparator()
     this.setupBtnDownload()
@@ -243,5 +262,37 @@ export class ToolbarTop extends Toolbar {
     container.append(label)
 
     this.appendItem('btnDefaultBlank', container)
+  }
+
+  setupUndoRedo() {
+    const btnUndo = this.elements.btnUndo = document.createElement('button')
+    btnUndo.classList.add(
+      'emoji-paint__toolbar-top-btn-undo',
+      'emoji-paint__btn-icon',
+      'radius--left'
+    )
+    btnUndo.title = 'Undo'
+    btnUndo.innerText = '↩️'
+    btnUndo.addEventListener('click', () => {
+      this.undoRedoStore.undo()
+    })
+
+    const btnRedo = this.elements.btnRedo = document.createElement('button')
+    btnRedo.classList.add(
+      'emoji-paint__toolbar-top-btn-redo',
+      'emoji-paint__btn-icon',
+      'radius--right'
+    )
+    btnRedo.title = 'Redo'
+    btnRedo.innerText = '↪️'
+    btnRedo.addEventListener('click', () => {
+      this.undoRedoStore.redo()
+    })
+
+    const undoRedoContainer = document.createElement('div')
+    undoRedoContainer.classList.add('emoji-paint__toolbar-top-undo-redo')
+    undoRedoContainer.append(btnUndo, btnRedo)
+
+    this.appendItem('undoRedo', undoRedoContainer)
   }
 }
