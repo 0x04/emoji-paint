@@ -6,10 +6,11 @@ import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
-    resizeInputWidth: null,
-    resizeInputHeight: null,
     btnUndo: null,
-    btnRedo: null
+    btnRedo: null,
+    btnBlank: null,
+    resizeInputWidth: null,
+    resizeInputHeight: null
   }
   /**
    * @type {CanvasStore}
@@ -37,6 +38,10 @@ export class ToolbarTop extends Toolbar {
     if (store.hasChange('width', 'height')) {
       this.elements.resizeInputWidth.value = store.getProperty('width')
       this.elements.resizeInputHeight.value = store.getProperty('height')
+    }
+
+    if (store.hasChange('defaultBlank')) {
+      this.elements.btnBlank.innerText = store.getProperty('defaultBlank')
     }
   }
 
@@ -216,15 +221,15 @@ export class ToolbarTop extends Toolbar {
 
   setupDefaultBlank() {
     const defaultBlank = this.canvasStore.getProperty('defaultBlank')
-    const container = document.createElement('div')
-    const label = document.createElement('label')
-    const button = document.createElement('button')
 
+    const container = document.createElement('div')
     container.title = 'Default blank emoji'
     container.classList.add('emoji-paint__toolbar-top-default-blank')
 
+    const label = document.createElement('label')
     label.classList.add('emoji-paint__toolbar-label')
 
+    const button = this.elements.btnBlank = document.createElement('button')
     button.innerText = defaultBlank
     button.addEventListener('click', () => {
       // NOTE: For the moment a very basic solution. The first idea of using a
