@@ -7,10 +7,13 @@ export class DrawTool extends Tool {
     const result = super.draw(event)
 
     if (result) {
-      const points = DRAW_FUNCTIONS.line(
-        this.prevPoint ?? this.point,
-        this.point
-      )
+      // TODO: Check performance
+      const points = DRAW_FUNCTIONS
+        .line(
+          this.prevPoint ?? this.point,
+          this.point
+        )
+        .filter(pointA => !this.pointsToDraw.some(pointB => pointA.isSame(pointB)))
 
       this.pointsToDraw.splice(this.pointsToDraw.length, 0, ...points)
 

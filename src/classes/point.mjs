@@ -1,4 +1,8 @@
 export class Point {
+  static isSame(a, b) {
+    return a && b && a.x === b.x && a.y === b.y
+  }
+
   /**
    * @type {number}
    */
@@ -15,5 +19,9 @@ export class Point {
 
   clone() {
     return new Point(this.x, this.y)
+  }
+
+  isSame(point) {
+    return Point.isSame(this, point)
   }
 }

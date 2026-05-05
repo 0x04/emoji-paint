@@ -51,9 +51,13 @@ export class Tool {
    */
   draw(event) {
     const { width, height } = this.stores.canvas.getDimensions()
-    const point = this.canvas.mouseGrid.getPointFromEvent(event)
 
     this.prevPoint = this.point
+    const point = this.point = this.canvas.mouseGrid.getPointFromEvent(event)
+
+    if (this.point.isSame(this.prevPoint)) {
+      return false
+    }
 
     // Normalize coordinates outside the grid
     if (point.x < 0 || point.x >= width || point.y < 0 || point.y >= height) {
@@ -63,8 +67,6 @@ export class Tool {
       )
       return false
     }
-
-    this.point = point
 
     return true
   }
