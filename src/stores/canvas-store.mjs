@@ -8,6 +8,7 @@ import {
 } from '../constants/globals.mjs'
 import { matchEmojis } from '../functions/match-emojis.mjs'
 import { PersistentStore } from '../classes/persistent-store.mjs'
+import { matrixToString, mergePointsIntoMatrix } from '../functions/matrix.mjs'
 
 export class CanvasStore extends PersistentStore {
   /**
@@ -54,18 +55,10 @@ export class CanvasStore extends PersistentStore {
    * @param {...Point} points
    */
   setPoints(value, ...points) {
-    const { width, height } = this.state
-    const newMatrix = structuredClone(this.state.matrix)
+    const { matrix, width, height } = this.state
+    const setMatrix = mergePointsIntoMatrix(matrix, width, height, value, ...points)
 
-    points.forEach(point => {
-      if (point.x < 0 && point.x >= width && point.y < 0 || point.y >= height) {
-        throw new RangeError('Coordinates are outside the canvas area!')
-      }
-
-      newMatrix[point.y][point.x] = value
-    })
-
-    this.setProperty('matrix', newMatrix)
+    this.setProperty('matrix', setMatrix)
   }
 
   /**
@@ -118,10 +111,7 @@ export class CanvasStore extends PersistentStore {
    * @returns {string}
    */
   getString(separator = DEFAULT_SEPARATOR) {
-    return this.state.matrix.reduce(
-      (result, line) => result + line.join('') + separator,
-      ''
-    )
+    return matrixToString(this.state.matrix, separator)
   }
 
   /**

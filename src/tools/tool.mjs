@@ -15,6 +15,7 @@ export class Tool {
   isMouseDown = false
   point = null
   prevPoint = null
+  pointsToDraw = []
 
   constructor(canvas, canvasStore, paletteStore) {
     this.onMouseDown = this.onMouseDown.bind(this)
@@ -23,6 +24,10 @@ export class Tool {
 
     this.canvas = canvas
     this.stores = { canvas: canvasStore, palette: paletteStore }
+  }
+
+  getValue(button = this.button) {
+    return this.stores.palette.getSelectedEntry(button)
   }
 
   activate() {
@@ -44,7 +49,7 @@ export class Tool {
    * @param {MouseEvent} event
    * @returns {boolean}
    */
-  apply(event) {
+  draw(event) {
     const { width, height } = this.stores.canvas.getDimensions()
     const point = this.canvas.mouseGrid.getPointFromEvent(event)
 
@@ -64,15 +69,24 @@ export class Tool {
     return true
   }
 
+  apply() {
+    this.stores.canvas.setPoints(
+      this.getValue(),
+      ...this.pointsToDraw
+    )
+    this.pointsToDraw = []
+    this.stores.canvas.write()
+  }
+
   onMouseDown(event) {
     this.button = event.button
     this.isMouseDown = true
-    this.apply(event)
+    this.draw(event)
   }
 
   onMouseMove(event) {
     if (this.isMouseDown) {
-      this.apply(event)
+      this.draw(event)
     }
   }
 
@@ -81,7 +95,7 @@ export class Tool {
       this.isMouseDown = false
       this.point = null
       this.prevPoint = null
-      this.stores.canvas.write()
+      this.apply()
     }
   }
 }

@@ -35,8 +35,6 @@ export class Paint {
    */
   toolbars = { top: null }
   elements = { container: null, head: null, body: null }
-  width = 10
-  height = 10
 
   constructor(element = document.createElement('div')) {
     this.onCanvasStoreChange = this.onCanvasStoreChange.bind(this)
