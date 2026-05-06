@@ -57,8 +57,7 @@ export class ToolbarTop extends Toolbar {
     this.appendSeparator()
     this.setupBtnCopy()
     this.appendSeparator()
-    this.setupBtnDownload()
-    this.setupBtnUpload()
+    this.setupDownloadUpload()
     this.appendSpacer()
     this.setupBackgroundColor()
     this.appendSeparator()
@@ -140,9 +139,8 @@ export class ToolbarTop extends Toolbar {
     this.appendItem('btnCopy', btnCopy)
   }
 
-  setupBtnDownload() {
+  setupDownloadUpload() {
     const btnDownload = document.createElement('button')
-
     btnDownload.classList.add(
       'emoji-paint__toolbar-top-btn-download',
       'emoji-paint__btn-icon',
@@ -163,18 +161,12 @@ export class ToolbarTop extends Toolbar {
       anchor.remove()
     })
 
-    this.appendItem('btnDownload', btnDownload)
-  }
-
-  setupBtnUpload() {
-    const labelUpload = document.createElement('label')
-    const btnUpload = document.createElement('input')
-
-    btnUpload.classList.add('emoji-paint__toolbar-top-btn-upload')
-    btnUpload.type = 'file'
-    btnUpload.title = 'Upload'
-    btnUpload.addEventListener('change', () => {
-      const [ file ] = btnUpload.files
+    const inputUpload = document.createElement('input')
+    inputUpload.classList.add('emoji-paint__toolbar-top-btn-upload--input')
+    inputUpload.type = 'file'
+    inputUpload.title = 'Upload'
+    inputUpload.addEventListener('change', () => {
+      const [ file ] = inputUpload.files
       const fileReader = new FileReader()
 
       fileReader.addEventListener('load', () => {
@@ -184,15 +176,20 @@ export class ToolbarTop extends Toolbar {
       fileReader.readAsText(file)
     })
 
-    labelUpload.classList.add(
-      'emoji-paint__toolbar-top-label-upload',
+    const btnUpload = document.createElement('button')
+    btnUpload.classList.add(
+      'emoji-paint__toolbar-top-btn-upload',
       'emoji-paint__btn-icon',
       'radius--right'
     )
-    labelUpload.title = 'Upload'
-    labelUpload.append('⬆️', btnUpload)
+    btnUpload.title = 'Upload'
+    btnUpload.append('⬆️', inputUpload)
 
-    this.appendItem('btnUpload', labelUpload)
+    const container = document.createElement('div')
+    container.classList.add('emoji-paint__toolbar-top-download-upload')
+    container.append(btnDownload, btnUpload)
+
+    this.appendItem('downloadUpload', container)
   }
 
   setupBackgroundColor() {

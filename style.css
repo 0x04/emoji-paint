@@ -121,20 +121,13 @@ input, button, select, textarea {
   }
 
   .emoji-paint__toolbar-top-btn-upload {
-    width: 0;
+    position: relative;
+  }
+
+  .emoji-paint__toolbar-top-btn-upload--input {
+    opacity: 0;
     position: absolute;
-    visibility: hidden;
-  }
-
-  .emoji-paint__toolbar-top-label-upload {
-    border: 1px outset #0006;
-    border-radius: 0.25rem;
-    padding: 4px;
-    background-color: buttonface;
-  }
-
-  .emoji-paint__toolbar-top-label-upload:hover {
-    background-color: var(--selection-color);
+    inset: 0;
   }
 
   .emoji-paint__toolbar-top-resize input[type='number'] {
