@@ -200,15 +200,7 @@ export class ToolbarTop extends Toolbar {
   }
 
   setupBackgroundColor() {
-    const container = document.createElement('div')
-    const label = document.createElement('label')
     const input = document.createElement('input')
-
-    container.title = 'Background color'
-    container.classList.add('emoji-paint__toolbar-top-background-color')
-
-    label.classList.add('emoji-paint__toolbar-label')
-
     input.type = 'color'
     input.value = this.canvasStore.getProperty('backgroundColor')
     input.addEventListener('change', () => {
@@ -216,8 +208,13 @@ export class ToolbarTop extends Toolbar {
       this.canvasStore.write()
     })
 
+    const label = document.createElement('label')
+    label.classList.add('emoji-paint__toolbar-label')
     label.append('Background', ' ', input)
 
+    const container = document.createElement('div')
+    container.title = 'Background color'
+    container.classList.add('emoji-paint__toolbar-top-background-color')
     container.append(label)
 
     this.appendItem('background', container)

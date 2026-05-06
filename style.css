@@ -135,13 +135,6 @@ input, button, select, textarea {
     text-align: right;
   }
 
-  .emoji-paint__toolbar-top-background-color > label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1ch;
-  }
-
   /* TODO: Change appearance to something more button like */
   .emoji-paint__toolbar-top-background-color input[type='color'] {
     display: block;
@@ -160,7 +153,10 @@ input, button, select, textarea {
   }
 
   .emoji-paint__toolbar-label {
-    margin-inline-end: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1ch;
   }
 
   .emoji-paint__canvas {
