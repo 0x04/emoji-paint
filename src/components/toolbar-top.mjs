@@ -69,17 +69,15 @@ export class ToolbarTop extends Toolbar {
   }
 
   setupResize() {
-    const label = document.createElement('span')
-    label.classList.add('emoji-paint__toolbar-label')
-    label.innerText = 'Size'
-
     const inputWidth = this.elements.resizeInputWidth = document.createElement('input')
     inputWidth.classList.add('radius--left')
+    inputWidth.title = 'Canvas width'
     inputWidth.type = 'number'
     inputWidth.value = String(DEFAULT_WIDTH)
 
     const inputHeight = this.elements.resizeInputHeight = document.createElement('input')
     inputHeight.classList.add('radius--middle')
+    inputHeight.title = 'Canvas height'
     inputHeight.value = String(DEFAULT_HEIGHT)
     inputHeight.type = 'number'
 
@@ -89,7 +87,7 @@ export class ToolbarTop extends Toolbar {
       'emoji-paint__btn-icon',
       'radius--right'
     )
-    btnResize.title = 'Resize Canvas'
+    btnResize.title = 'Resize canvas'
     btnResize.innerText = '📐'
     btnResize.addEventListener('click', () => {
       this.canvasStore.setDimensions(
@@ -99,11 +97,20 @@ export class ToolbarTop extends Toolbar {
       this.canvasStore.write()
     })
 
-    const containerResize = document.createElement('div')
-    containerResize.classList.add('emoji-paint__toolbar-top-resize')
-    containerResize.append(label, inputWidth, inputHeight, btnResize)
+    const controls = document.createElement('div')
+    controls.append(inputWidth, inputHeight, btnResize)
 
-    this.appendItem('resize', containerResize)
+    const label = document.createElement('label')
+    label.classList.add('emoji-paint__toolbar-label')
+    label.title = 'Canvas size'
+    label.innerText = 'Size'
+    label.append(controls)
+
+    const container = document.createElement('div')
+    container.classList.add('emoji-paint__toolbar-top-resize')
+    container.append(label)
+
+    this.appendItem('resize', container)
   }
 
   setupBtnClear() {
