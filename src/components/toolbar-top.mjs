@@ -223,13 +223,6 @@ export class ToolbarTop extends Toolbar {
   setupDefaultBlank() {
     const defaultBlank = this.canvasStore.getProperty('defaultBlank')
 
-    const container = document.createElement('div')
-    container.title = 'Default blank emoji'
-    container.classList.add('emoji-paint__toolbar-top-default-blank')
-
-    const label = document.createElement('label')
-    label.classList.add('emoji-paint__toolbar-label')
-
     const button = this.elements.btnBlank = document.createElement('button')
     button.innerText = defaultBlank
     button.addEventListener('click', () => {
@@ -264,10 +257,16 @@ export class ToolbarTop extends Toolbar {
       this.canvasStore.write()
     })
 
+    const label = document.createElement('label')
+    label.classList.add('emoji-paint__toolbar-label')
     label.append('Blank', ' ', button)
+
+    const container = document.createElement('div')
+    container.title = 'Default blank emoji'
+    container.classList.add('emoji-paint__toolbar-top-default-blank')
     container.append(label)
 
-    this.appendItem('btnDefaultBlank', container)
+    this.appendItem('defaultBlank', container)
   }
 
   setupUndoRedo() {
