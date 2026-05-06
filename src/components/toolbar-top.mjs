@@ -294,10 +294,10 @@ export class ToolbarTop extends Toolbar {
       this.undoRedoStore.redo()
     })
 
-    const undoRedoContainer = document.createElement('div')
-    undoRedoContainer.classList.add('emoji-paint__toolbar-top-undo-redo')
-    undoRedoContainer.append(btnUndo, btnRedo)
+    const container = document.createElement('div')
+    container.classList.add('emoji-paint__toolbar-top-undo-redo')
+    container.append(btnUndo, btnRedo)
 
-    this.appendItem('undoRedo', undoRedoContainer)
+    this.appendItem('undoRedo', container)
   }
 }
