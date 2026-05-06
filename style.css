@@ -108,12 +108,14 @@ input, button, select, textarea {
 
   .emoji-paint__toolbar-top {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
   }
 
   .emoji-paint__toolbar-separator {
     flex: 0 1 0;
     margin-block: 0.25rem;
-    margin-inline: 0.5rem;
+    margin-inline-start: 0;
   }
 
   .emoji-paint__toolbar-spacer {

@@ -115,7 +115,6 @@ export class ToolbarTop extends Toolbar {
 
   setupBtnClear() {
     const btnClear = document.createElement('button')
-
     btnClear.classList.add(
       'emoji-paint__toolbar-top-btn-clear',
       'emoji-paint__btn-icon'
@@ -132,7 +131,6 @@ export class ToolbarTop extends Toolbar {
 
   setupBtnCopy() {
     const btnCopy = document.createElement('button')
-
     btnCopy.classList.add(
       'emoji-paint__toolbar-top-btn-copy',
       'emoji-paint__btn-icon'
