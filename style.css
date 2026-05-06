@@ -75,8 +75,10 @@ input, button, select, textarea {
     height: 100%;
 
     /* NOTE: dev-only */
+    /*
     resize: both;
     overflow: scroll;
+    */
   }
 
   .emoji-paint__head {
