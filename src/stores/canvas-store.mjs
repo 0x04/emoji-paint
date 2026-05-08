@@ -8,7 +8,7 @@ import {
 } from '../constants/globals.mjs'
 import { matchEmojis } from '../functions/match-emojis.mjs'
 import { PersistentStore } from '../classes/persistent-store.mjs'
-import { matrixToString, mergePointsIntoMatrix } from '../functions/matrix.mjs'
+import { createMatrix, matrixToString, mergePointsIntoMatrix } from '../functions/matrix.mjs'
 
 export class CanvasStore extends PersistentStore {
   /**
@@ -35,15 +35,15 @@ export class CanvasStore extends PersistentStore {
    * Returns a canvas with the given dimensions.
    * @param width
    * @param height
+   * @param defaultBlank
    * @returns {string[][]} The new canvas matrix
    */
   create(
     width = this.state.width,
-    height = this.state.height
+    height = this.state.height,
+    defaultBlank = this.state.defaultBlank
   ) {
-    return new Array(height)
-      .fill(undefined)
-      .map(() => new Array(width).fill(this.state.defaultBlank))
+    return createMatrix(width, height, defaultBlank)
   }
 
   /**
@@ -60,9 +60,15 @@ export class CanvasStore extends PersistentStore {
    */
   setPoints(value, ...points) {
     const { matrix, width, height } = this.state
-    const setMatrix = mergePointsIntoMatrix(matrix, width, height, value, ...points)
+    const newMatrix = mergePointsIntoMatrix(
+      structuredClone(matrix),
+      width,
+      height,
+      value,
+      ...points
+    )
 
-    this.setProperty('matrix', setMatrix)
+    this.setProperty('matrix', newMatrix)
   }
 
   /**

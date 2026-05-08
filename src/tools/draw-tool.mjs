@@ -6,7 +6,7 @@ export class DrawTool extends Tool {
   draw(event) {
     const result = super.draw(event)
 
-    if (result) {
+    if (result && this.current) {
       // TODO: Check performance
       const points = DRAW_FUNCTIONS
         .line(
@@ -15,18 +15,16 @@ export class DrawTool extends Tool {
         )
         .filter(pointA => !this.pointsToDraw.some(pointB => pointA.isSame(pointB)))
 
-      this.pointsToDraw.splice(this.pointsToDraw.length, 0, ...points)
-
-      const { matrix, width, height } = this.stores.canvas.getState()
-      const drawMatrix = mergePointsIntoMatrix(
-        matrix,
-        width,
-        height,
+      this.current.matrix = mergePointsIntoMatrix(
+        this.current.matrix,
+        this.current.width,
+        this.current.height,
         this.getValue(),
-        ...this.pointsToDraw
+        ...points
       )
 
-      this.canvas.setContent(matrixToString(drawMatrix))
+      this.canvas.setContent(matrixToString(this.current.matrix))
+      this.pointsToDraw.splice(this.pointsToDraw.length, 0, ...points)
     }
 
     return result

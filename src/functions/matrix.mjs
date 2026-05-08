@@ -9,15 +9,13 @@ export const matrixToString = (matrix, separator = '\n') => matrix
   )
 
 export const mergePointsIntoMatrix = (matrix, width, height, value, ...points) => {
-  const result = structuredClone(matrix)
-
   points.forEach(point => {
     if (point.x < 0 && point.x >= width && point.y < 0 || point.y >= height) {
       throw new RangeError('Coordinates are outside the canvas area!')
     }
 
-    result[point.y][point.x] = value
+    matrix[point.y][point.x] = value
   })
 
-  return result
+  return matrix
 }

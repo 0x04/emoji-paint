@@ -17,6 +17,11 @@ export class Tool {
   prevPoint = null
   pointsToDraw = []
 
+  /**
+   * @type {{matrix: Array<string[]>, width: number, height: number}|null}
+   */
+  current = null
+
   constructor(canvas, canvasStore, paletteStore) {
     this.onMouseDown = this.onMouseDown.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
@@ -81,8 +86,15 @@ export class Tool {
   }
 
   onMouseDown(event) {
+    const { canvas: canvasStore } = this.stores
+
     this.button = event.button
     this.isMouseDown = true
+    this.current = {
+      matrix: structuredClone(canvasStore.getProperty('matrix')),
+      width: canvasStore.getProperty('width'),
+      height: canvasStore.getProperty('height')
+    }
     this.draw(event)
   }
 
@@ -97,6 +109,7 @@ export class Tool {
       this.isMouseDown = false
       this.point = null
       this.prevPoint = null
+      this.current = null
       this.apply()
     }
   }
