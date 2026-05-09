@@ -91,6 +91,10 @@ export class PaletteEditor {
   }
 
   onBtnResetClick() {
+    if (!confirm('Are you sure you want to reset the palette?')) {
+      return
+    }
+
     const { store: paletteStore } = this.palette
 
     paletteStore.resetPalette()
