@@ -31,7 +31,6 @@ input, button, select, textarea {
 
   body {
     margin: 0;
-    padding: 1rem;
     color: #333;
     font-family: "Consolas", monospace;
     line-height: 1.25;
@@ -73,6 +72,7 @@ input, button, select, textarea {
     border-radius: 4px;
     background: #ccc;
     height: 100%;
+    user-select: none;
 
     /* NOTE: dev-only */
     /*
@@ -81,16 +81,9 @@ input, button, select, textarea {
     */
   }
 
-  .emoji-paint__head {
-    padding: 0.5rem 1rem;
-    border-bottom: 1px outset;
-    border-radius: 3px 3px 0 0;
-    background: #aaa;
-    font-weight: bold;
-  }
-
-  .emoji-paint__head:first-letter {
-    text-shadow: var(--label-emoji-text-shadow);
+  .emoji-paint__container--borderless {
+    border: 0;
+    border-radius: 0;
   }
 
   .emoji-paint__body {
@@ -99,6 +92,10 @@ input, button, select, textarea {
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
+  }
+
+  .emoji-paint__container--borderless .emoji-paint__body {
+    padding: 0.5rem;
   }
 
   .emoji-paint__btn-icon {
@@ -124,6 +121,19 @@ input, button, select, textarea {
 
   .emoji-paint__toolbar-spacer {
     flex: 1 1 auto;
+  }
+
+  .emoji-paint__toolbar-top-title {
+    display: flex;
+    align-items: center;
+    column-gap: 0.25rem;
+    padding-inline-end: 1ch;
+    font-weight: bold;
+    cursor: help;
+  }
+
+  .emoji-paint__toolbar-top-title > span {
+    text-shadow: var(--label-emoji-text-shadow);
   }
 
   .emoji-paint__toolbar-top-btn-upload {
@@ -174,7 +184,6 @@ input, button, select, textarea {
     white-space: pre;
     background: var(--canvas-background);
     cursor: crosshair;
-    user-select: none;
   }
 
   .emoji-paint__canvas,
@@ -228,6 +237,7 @@ input, button, select, textarea {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    padding-inline-start: 0.25rem;
     cursor: default;
   }
 

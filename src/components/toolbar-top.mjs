@@ -8,6 +8,7 @@ import {
   DEFAULT_MIN_SIZE,
   DEFAULT_WIDTH
 } from '../constants/globals.mjs'
+import { versionString } from '../constants/versionString.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
@@ -58,6 +59,7 @@ export class ToolbarTop extends Toolbar {
   }
 
   setup() {
+    this.setupTitle()
     this.setupUndoRedo()
     this.appendSeparator()
     this.setupBtnCopy()
@@ -71,6 +73,26 @@ export class ToolbarTop extends Toolbar {
     this.setupResize()
     this.appendSeparator()
     this.setupBtnClear()
+  }
+
+  setupTitle() {
+    const title = document.createElement('div')
+    title.classList.add('emoji-paint__toolbar-top-title')
+
+    const icon = document.createElement('span')
+    icon.innerText = '🎨'
+
+    title.addEventListener('click', () => {
+      alert(
+        'Emoji Paint: A simple paint webtoy to draw with emoji characters.\n\n'
+        + `Version: ${versionString}\n`
+        + 'Website: https://0x04.dev/emoji-paint/\n\n'
+        + 'Made with 💙 and 🧠 by 0x04'
+      )
+    })
+    title.append(icon, document.createTextNode('EmojiPaint'))
+
+    this.appendItem('title', title)
   }
 
   setupResize() {

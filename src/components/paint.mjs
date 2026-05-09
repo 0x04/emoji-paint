@@ -55,10 +55,6 @@ export class Paint {
     this.tool = new DrawTool(this.canvas, canvasStore, paletteStore)
     this.toolbars.top = new ToolbarTop(canvasStore, undoRedoStore)
 
-    const head = this.elements.head = document.createElement('div')
-    head.classList.add('emoji-paint__head')
-    head.innerText = '🎨 EmojiPaint'
-
     const body = this.elements.body = document.createElement('div')
     body.classList.add('emoji-paint__body')
     body.append(
@@ -69,7 +65,7 @@ export class Paint {
 
     const container = this.elements.container = element
     container.classList.add('emoji-paint__container')
-    container.append(head, body)
+    container.append(body)
 
     if (!container.parentElement) {
       document.body.append(container)
