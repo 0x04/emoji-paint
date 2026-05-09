@@ -16,6 +16,7 @@ export class PaletteEditor {
     this.onBtnEditClick = this.onBtnEditClick.bind(this)
     this.onBtnResetClick = this.onBtnResetClick.bind(this)
     this.onInputEditBlur = this.onInputEditBlur.bind(this)
+    this.onInputEditKeyUp = this.onInputEditKeyUp.bind(this)
     this.onInputEditKeyPress = this.onInputEditKeyPress.bind(this)
     this.onPaletteStoreChange = this.onPaletteStoreChange.bind(this)
 
@@ -47,6 +48,7 @@ export class PaletteEditor {
 
     inputEdit.classList.add('emoji-paint__palette-editor-input-edit')
     inputEdit.addEventListener('blur', this.onInputEditBlur)
+    inputEdit.addEventListener('keyup', this.onInputEditKeyUp)
     inputEdit.addEventListener('keypress', this.onInputEditKeyPress)
 
     container.append(btnEdit, btnReset)
@@ -66,13 +68,15 @@ export class PaletteEditor {
     inputEdit.focus()
   }
 
-  disable() {
+  disable(discardChanges = false) {
     const { items } = this.palette.elements
     const { inputEdit } = this.elements
 
     inputEdit.replaceWith(items)
 
-    this.apply()
+    if (!discardChanges) {
+      this.apply()
+    }
   }
 
   apply(value = this.elements.inputEdit.value) {
@@ -99,6 +103,12 @@ export class PaletteEditor {
 
     paletteStore.resetPalette()
     paletteStore.write()
+  }
+
+  onInputEditKeyUp(event) {
+    if (event.code === 'Escape') {
+      this.disable(true)
+    }
   }
 
   onInputEditKeyPress(event) {
