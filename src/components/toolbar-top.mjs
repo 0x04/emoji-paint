@@ -2,7 +2,12 @@ import { Toolbar } from './toolbar.mjs'
 import { copyToClipboard } from '../functions/copy-to-clipboard.mjs'
 import { isEmoji } from '../functions/is-emoji.mjs'
 import { matchEmojis } from '../functions/match-emojis.mjs'
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../constants/globals.mjs'
+import {
+  DEFAULT_HEIGHT,
+  DEFAULT_MAX_RECOMMENDED_DIMENSIONS,
+  DEFAULT_MIN_SIZE,
+  DEFAULT_WIDTH
+} from '../constants/globals.mjs'
 
 export class ToolbarTop extends Toolbar {
   elements = {
@@ -73,13 +78,15 @@ export class ToolbarTop extends Toolbar {
     inputWidth.classList.add('radius--left')
     inputWidth.title = 'Canvas width'
     inputWidth.type = 'number'
+    inputWidth.min = String(DEFAULT_MIN_SIZE)
     inputWidth.value = String(DEFAULT_WIDTH)
 
     const inputHeight = this.elements.resizeInputHeight = document.createElement('input')
     inputHeight.classList.add('radius--middle')
     inputHeight.title = 'Canvas height'
-    inputHeight.value = String(DEFAULT_HEIGHT)
     inputHeight.type = 'number'
+    inputHeight.min = String(DEFAULT_MIN_SIZE)
+    inputHeight.value = String(DEFAULT_HEIGHT)
 
     const btnResize = document.createElement('button')
     btnResize.classList.add(
@@ -90,10 +97,16 @@ export class ToolbarTop extends Toolbar {
     btnResize.title = 'Resize canvas'
     btnResize.innerText = '📐'
     btnResize.addEventListener('click', () => {
-      this.canvasStore.setDimensions(
-        parseInt(inputWidth.value),
-        parseInt(inputHeight.value)
-      )
+      const width = parseInt(inputWidth.value)
+      const height = parseInt(inputHeight.value)
+
+      if (width * height > DEFAULT_MAX_RECOMMENDED_DIMENSIONS) {
+        if (!confirm('This will result in a large canvas and may lack in performance. Continue?')) {
+          return
+        }
+      }
+
+      this.canvasStore.setDimensions(width, height)
       this.canvasStore.write()
     })
 

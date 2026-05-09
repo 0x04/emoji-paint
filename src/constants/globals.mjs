@@ -1,7 +1,9 @@
 export const REGEXP_EMOJI = /(?![\u0000-\u1FFF])\p{Emoji}/u
 export const DEFAULT_SEPARATOR = '\n'
-export const DEFAULT_WIDTH = 10
-export const DEFAULT_HEIGHT = 10
+export const DEFAULT_MIN_SIZE = 2
+export const DEFAULT_MAX_RECOMMENDED_DIMENSIONS = 128 * 128
+export const DEFAULT_WIDTH = 16
+export const DEFAULT_HEIGHT = 16
 export const DEFAULT_BLANK = '⬜'
-export const DEFAULT_BACKGROUND_COLOR = '#FFFFFF'
+export const DEFAULT_BACKGROUND_COLOR = '#fff'
 export const STORE_STORAGE_KEY = 'emojiPaint'
